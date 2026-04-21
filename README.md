@@ -1,44 +1,89 @@
-# YS.Workout — Project Analysis
+<div align="center">
 
-**What it is:** A mobile-first personal workout tracking app. Users create routines, run live workouts, track sets/reps/weight, get real-time PR detection, and review history in a logbook.
+# 🏋️ YS Workout
 
----
+**A sleek, dark-themed workout tracking app built for people who take their training seriously.**
 
-## Tech Stack
+[![Status](https://img.shields.io/badge/status-early%20access-blueviolet?style=flat-square)](mailto:yannick.salm@outlook.de)
+[![Stack](https://img.shields.io/badge/stack-Next.js%20%2B%20Cloudflare-orange?style=flat-square)](https://workers.cloudflare.com)
+[![Feedback](https://img.shields.io/badge/feedback-very%20welcome-brightgreen?style=flat-square)](mailto:yannick.salm@outlook.de)
 
-- **Next.js 16** (App Router) + **React 19** + **TypeScript**
-- **Supabase** for auth + primary DB (user data, sessions, PRs)
-- **Second Supabase project** — read-only exercise library (separate URL/key)
-- **IndexedDB** (`idb`) for offline workout persistence
-- Tailwind v4 configured, but almost all styling uses inline `style` props with CSS custom properties from `globals.css`
-- No external state manager, no chart library, no component library
+</div>
 
 ---
 
-## Architecture Pattern
+## ✨ What is YS Workout?
 
-Every `(app)` route follows: **async Server Component** (`page.tsx`) fetches data → passes as props to `*Client.tsx`. Clean RSC/client split throughout.
+YS Workout is a personal workout tracking app designed with one goal: **get out of your way and let you train.** No bloat, no subscriptions, no dark patterns — just a clean, fast interface to log your exercises, track your progress, and stay consistent.
+
+The app is built with a strong focus on **visual design**, featuring multiple hand-crafted dark themes (Vulkan, Polar, Malachit, Obsidian, Stahl) and a UI that feels native on mobile.
 
 ---
 
-## Key Features & Files
+## 🎯 Features
 
-| Feature | Key File |
+- **Workout Logging** — Log sets, reps, and weights with a minimal, thumb-friendly UI
+- **Exercise Library** — Browse and search thousands of exercises with muscle group and equipment filters
+- **Dark Themes** — Five carefully designed dark color schemes to match your aesthetic
+- **Fast & Offline-ready** — Built on Cloudflare's edge network for near-instant load times globally
+- **Progress Tracking** *(coming soon)* — Charts and personal records per exercise
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer | Technology |
 |---|---|
-| Active workout (most complex) | `WorkoutClient.tsx` |
-| Exercise picker (search + filter + infinite scroll) | `AddExerciseModal.tsx` |
-| Routine editing | `RoutineEditClient.tsx` |
-| Per-exercise analytics (custom bar chart) | `ShowExerciseClient.tsx` |
-| PR detection logic | `lib/pr.ts` |
-| Offline storage | `lib/indexeddb.ts` |
-| Auth guard + approval gate | `middleware.ts` |
+| Frontend | Next.js (App Router) + TypeScript |
+| Styling | CSS Custom Properties (theme system) |
+| Backend | Cloudflare Workers via OpenNext |
+| Database | Supabase (PostgreSQL) |
+| Exercise Data | External Exercise DB |
+| Deployment | Cloudflare Pages / Workers |
 
 ---
 
-## Notable Design Decisions
+## 🔐 Access
 
-- **Offline-first active workouts** — IDB saved on every state change; Supabase sync every 2 min + on finish
-- **PRs written only on finish** — detected live in state, never pollute the DB from abandoned sessions
-- **Approval gating** — new users need `profiles.is_approved = true` (admin-flipped) before they can log in
-- `stores/workout-store.ts` is empty — no global state management implemented yet, all state is local
-- **Custom inline bar chart** — no charting library, just proportional flex divs
+This project is currently in **early access** — the app is live but access is invite-only while it's being actively developed.
+
+**Want to try it out?**
+
+Send a short message to:
+
+> 📬 **[yannick.salm@outlook.de](mailto:yannick.salm@outlook.de)**
+
+Just introduce yourself and mention you'd like access. I'll get back to you as soon as possible.
+
+---
+
+## 💬 Feedback
+
+Feedback is **very welcome** — and genuinely appreciated. Whether it's a bug, a UI quirk that bothers you, a missing feature, or just a general impression, I want to hear it.
+
+You can reach me the same way:
+
+> 📬 **[yannick.salm@outlook.de](mailto:yannick.salm@outlook.de)**
+
+No feedback is too small. If something feels off, it probably is.
+
+---
+
+## 🗺️ Roadmap
+
+- [x] Exercise library with filters
+- [x] Workout logging UI
+- [x] Multi-theme support
+- [x] Cloudflare deployment
+- [ ] Progress charts & PRs
+- [ ] Workout history
+- [ ] Custom exercise creation
+- [ ] Export / backup
+
+---
+
+<div align="center">
+
+Made with 🖤 by Yannick Salm
+
+</div>
