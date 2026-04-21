@@ -37,7 +37,7 @@ export default function AddExerciseModal({ onAdd, onClose }: Props) {
     useEffect(() => {
         fetch('/api/exercises/filters')
             .then(r => r.json())
-            .then(data => {
+            .then((data: any) => {
                 const bpList = data.bodyParts.map((bp: any) =>
                     typeof bp === 'string' ? bp : bp.name ?? bp
                 ).sort()
@@ -65,7 +65,7 @@ export default function AddExerciseModal({ onAdd, onClose }: Props) {
 
         try {
             const res = await fetch(`/api/exercises/list?${params}`)
-            const json = await res.json()
+            const json = await res.json() as any
             setExercises(prev => reset ? json.data : [...prev, ...json.data])
             setHasMore(json.meta.hasNextPage)
             setCursor(json.meta.nextCursor ?? null)
@@ -87,7 +87,7 @@ export default function AddExerciseModal({ onAdd, onClose }: Props) {
             setSearching(true)
             try {
                 const res = await fetch(`/api/exercises/search?q=${encodeURIComponent(searchQuery)}`)
-                const data = await res.json()
+                const data = await res.json() as any
                 setSearchResults(data.slice(0, 50))
             } catch { }
             setSearching(false)

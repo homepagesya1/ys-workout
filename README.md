@@ -1,36 +1,44 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# YS.Workout — Project Analysis
 
-## Getting Started
+**What it is:** A mobile-first personal workout tracking app. Users create routines, run live workouts, track sets/reps/weight, get real-time PR detection, and review history in a logbook.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Tech Stack
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **Next.js 16** (App Router) + **React 19** + **TypeScript**
+- **Supabase** for auth + primary DB (user data, sessions, PRs)
+- **Second Supabase project** — read-only exercise library (separate URL/key)
+- **IndexedDB** (`idb`) for offline workout persistence
+- Tailwind v4 configured, but almost all styling uses inline `style` props with CSS custom properties from `globals.css`
+- No external state manager, no chart library, no component library
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Architecture Pattern
 
-## Learn More
+Every `(app)` route follows: **async Server Component** (`page.tsx`) fetches data → passes as props to `*Client.tsx`. Clean RSC/client split throughout.
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Key Features & Files
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Feature | Key File |
+|---|---|
+| Active workout (most complex) | `WorkoutClient.tsx` |
+| Exercise picker (search + filter + infinite scroll) | `AddExerciseModal.tsx` |
+| Routine editing | `RoutineEditClient.tsx` |
+| Per-exercise analytics (custom bar chart) | `ShowExerciseClient.tsx` |
+| PR detection logic | `lib/pr.ts` |
+| Offline storage | `lib/indexeddb.ts` |
+| Auth guard + approval gate | `middleware.ts` |
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Notable Design Decisions
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Offline-first active workouts** — IDB saved on every state change; Supabase sync every 2 min + on finish
+- **PRs written only on finish** — detected live in state, never pollute the DB from abandoned sessions
+- **Approval gating** — new users need `profiles.is_approved = true` (admin-flipped) before they can log in
+- `stores/workout-store.ts` is empty — no global state management implemented yet, all state is local
+- **Custom inline bar chart** — no charting library, just proportional flex divs
