@@ -9,9 +9,7 @@ const tabs = [
     label: 'Routines',
     icon: (active: boolean) => (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={active ? 2.5 : 1.8} strokeLinecap="round" strokeLinejoin="round">
-        <path d="M4 6h16M4 10h16M4 14h10"/>
-        <circle cx="18" cy="17" r="3"/>
-        <path d="m21 20-1.5-1.5"/>
+        <path d="M3 6h18M3 12h18M3 18h18" />
       </svg>
     ),
   },
@@ -20,9 +18,9 @@ const tabs = [
     label: 'Log Book',
     icon: (active: boolean) => (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={active ? 2.5 : 1.8} strokeLinecap="round" strokeLinejoin="round">
-        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
-        <path d="M9 7h6M9 11h4"/>
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+        <path d="M9 7h6M9 11h4" />
       </svg>
     ),
   },
@@ -31,8 +29,8 @@ const tabs = [
     label: 'Account',
     icon: (active: boolean) => (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={active ? 2.5 : 1.8} strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="8" r="4"/>
-        <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+        <circle cx="12" cy="8" r="4" />
+        <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
       </svg>
     ),
   },
