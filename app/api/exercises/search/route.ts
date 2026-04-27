@@ -12,6 +12,7 @@ export async function GET(request: NextRequest) {
       exerciseId: ex.id,
       name: ex.name,
       imageUrl: ex.image_url,
+      imageUrl2: ex.image_url_2,   // ← diese Zeile hinzufügen
       targetMuscles: ex.primary_muscles,
       bodyParts: ex.primary_muscles,
       equipments: ex.equipment ? [ex.equipment] : [],

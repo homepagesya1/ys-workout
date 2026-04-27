@@ -1,7 +1,9 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
+import { deleteWorkoutSession, saveAsRoutine, startWorkoutFromSession } from '@/lib/supabase/sessions'
 import { loadEDBDataForExercises } from '@/lib/exercises'
 
 interface Props {
@@ -26,9 +28,257 @@ function formatDate(dateStr: string) {
   })
 }
 
+// ─── Three-dot menu ───────────────────────────────────────────────────────────
+
+function WorkoutOptionsMenu({ sessionId, currentTitle, onRenamed }: {
+  sessionId: string
+  currentTitle: string
+  onRenamed: (newTitle: string) => void
+}) {
+  const [open,       setOpen]      = useState(false)
+  const [confirming, setConfirming] = useState(false)
+  const [loading,    setLoading]   = useState(false)
+  const [renaming,   setRenaming]  = useState(false)
+  const [newTitle,   setNewTitle]  = useState(currentTitle)
+  const [savedRoutine, setSavedRoutine] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
+  const router = useRouter()
+  const supabase = createClient()
+
+  async function handleSaveAsRoutine() {
+    setLoading(true)
+    const { error } = await saveAsRoutine(sessionId)
+    setLoading(false)
+    if (!error) { setSavedRoutine(true); setTimeout(() => { setSavedRoutine(false); setOpen(false) }, 1500) }
+  }
+
+  async function handleStartWorkout() {
+    setLoading(true)
+    const { newSessionId } = await startWorkoutFromSession(sessionId)
+    setLoading(false)
+    if (newSessionId) router.push(`/workout?session=${newSessionId}`)
+  }
+
+  async function handleRename() {
+    if (!newTitle.trim() || newTitle.trim() === currentTitle) {
+      setRenaming(false)
+      return
+    }
+    setLoading(true)
+    await supabase
+      .from('workout_sessions')
+      .update({ title: newTitle.trim() })
+      .eq('id', sessionId)
+    onRenamed(newTitle.trim())
+    setLoading(false)
+    setRenaming(false)
+    setOpen(false)
+  }
+
+  useEffect(() => {
+    function onClickOutside(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setOpen(false)
+        setConfirming(false)
+      }
+    }
+    document.addEventListener('mousedown', onClickOutside)
+    return () => document.removeEventListener('mousedown', onClickOutside)
+  }, [])
+
+  async function handleDelete() {
+    if (!confirming) {
+      setConfirming(true)
+      return
+    }
+    setLoading(true)
+    const { error } = await deleteWorkoutSession(sessionId)
+
+    if (error) {
+      setLoading(false)
+      setConfirming(false)
+      return
+    }
+
+    router.back()
+    router.refresh()
+  }
+
+  return (
+    <div ref={menuRef} style={{ position: 'relative' }}>
+      {/* ⋯ Button */}
+      <button
+        onClick={() => { setOpen(o => !o); setConfirming(false) }}
+        style={{
+          background: open ? 'rgba(151,125,255,0.12)' : 'transparent',
+          border: 'none',
+          cursor: 'pointer',
+          width: '32px',
+          height: '32px',
+          borderRadius: '8px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: 'var(--color-text-secondary)',
+          transition: 'background 0.15s',
+        }}
+      >
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
+          <circle cx="10" cy="4"  r="1.6" />
+          <circle cx="10" cy="10" r="1.6" />
+          <circle cx="10" cy="16" r="1.6" />
+        </svg>
+      </button>
+
+      {/* Dropdown */}
+      {open && (
+        <div style={{
+          position: 'absolute',
+          top: 'calc(100% + 8px)',
+          right: 0,
+          minWidth: '210px',
+          background: 'var(--color-bg-elevated, #1a1a2e)',
+          border: '1px solid rgba(151,125,255,0.2)',
+          borderRadius: '14px',
+          padding: '6px',
+          zIndex: 200,
+          boxShadow: '0 12px 32px rgba(0,0,0,0.5)',
+        }}>
+
+          {renaming ? (
+            <div style={{ padding: '6px 4px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <input
+                autoFocus
+                value={newTitle}
+                onChange={e => setNewTitle(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') handleRename(); if (e.key === 'Escape') setRenaming(false) }}
+                style={{
+                  width: '100%', padding: '8px 10px', borderRadius: '8px',
+                  border: '1px solid rgba(151,125,255,0.4)',
+                  background: 'rgba(151,125,255,0.08)',
+                  color: 'var(--color-text-primary)', fontSize: '14px',
+                }}
+              />
+              <div style={{ display: 'flex', gap: '6px' }}>
+                <button onClick={() => setRenaming(false)} style={{ flex: 1, padding: '7px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: 'var(--color-text-secondary)', fontSize: '13px', cursor: 'pointer' }}>
+                  Abbrechen
+                </button>
+                <button onClick={handleRename} disabled={loading} style={{ flex: 1, padding: '7px', borderRadius: '8px', border: 'none', background: 'rgba(151,125,255,0.2)', color: 'var(--color-primary)', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
+                  {loading ? '…' : 'Speichern'}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <button
+                onClick={() => { setNewTitle(currentTitle); setRenaming(true) }}
+                style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 10px', borderRadius: '8px', border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '14px', color: 'var(--color-text-primary)', textAlign: 'left' }}
+              >
+                <PencilIcon />
+                Umbenennen
+              </button>
+
+              <button onClick={handleSaveAsRoutine} disabled={loading || savedRoutine} style={{ width:'100%', display:'flex', alignItems:'center', gap:'10px', padding:'9px 10px', borderRadius:'8px', border:'none', background:savedRoutine?'rgba(46,213,115,0.1)':'transparent', cursor:'pointer', fontSize:'14px', color:savedRoutine?'#2ED573':'var(--color-text-primary)', textAlign:'left' }}>
+                <BookmarkIcon />
+                {savedRoutine ? 'Routine gespeichert ✓' : 'Als Routine speichern'}
+              </button>
+              <button onClick={handleStartWorkout} disabled={loading} style={{ width:'100%', display:'flex', alignItems:'center', gap:'10px', padding:'9px 10px', borderRadius:'8px', border:'none', background:'transparent', cursor:'pointer', fontSize:'14px', color:'var(--color-text-primary)', textAlign:'left' }}>
+                <PlayIcon />
+                Workout starten
+              </button>
+
+              <div style={{ height: '1px', background: 'rgba(255,255,255,0.07)', margin: '6px 0' }} />
+
+              <button
+                onClick={handleDelete}
+                disabled={loading}
+                style={{
+                  width: '100%', display: 'flex', alignItems: 'center', gap: '10px',
+                  padding: '9px 10px', borderRadius: '8px', border: 'none',
+                  background: confirming ? 'rgba(255,90,90,0.12)' : 'transparent',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  fontSize: '14px', color: '#FF5A5A', textAlign: 'left', transition: 'background 0.15s',
+                }}
+              >
+                <TrashIcon />
+                {loading ? 'Wird gelöscht…' : confirming ? 'Wirklich löschen?' : 'Workout löschen'}
+              </button>
+            </>
+          )}
+
+        </div>
+      )}
+    </div>
+  )
+}
+
+function PencilIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+    </svg>
+  )
+}
+
+function MenuItem({ icon, label, disabled }: { icon: React.ReactNode; label: string; disabled?: boolean }) {
+  return (
+    <button
+      disabled={disabled}
+      style={{
+        width: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px',
+        padding: '9px 10px',
+        borderRadius: '8px',
+        border: 'none',
+        background: 'transparent',
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        fontSize: '14px',
+        color: disabled ? 'rgba(255,255,255,0.2)' : 'var(--color-text-primary)',
+        textAlign: 'left',
+      }}
+    >
+      {icon}
+      {label}
+    </button>
+  )
+}
+
+function TrashIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="3 6 5 6 21 6"/>
+      <path d="M19 6l-1 14H6L5 6"/>
+      <path d="M10 11v6M14 11v6"/>
+      <path d="M9 6V4h6v2"/>
+    </svg>
+  )
+}
+
+function BookmarkIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+    </svg>
+  )
+}
+
+function PlayIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <polygon points="5 3 19 12 5 21 5 3"/>
+    </svg>
+  )
+}
+
+// ─── Main Component ────────────────────────────────────────────────────────────
+
 export default function LogbookDetailClient({ session, workoutExercises, sets, prs }: Props) {
   const router = useRouter()
   const [exercises, setExercises] = useState<any[]>(workoutExercises ?? [])
+  const [title, setTitle] = useState(session?.title ?? '')
 
   useEffect(() => {
     if (!workoutExercises || workoutExercises.length === 0) return
@@ -52,14 +302,19 @@ export default function LogbookDetailClient({ session, workoutExercises, sets, p
       }}>
         <button
           onClick={() => router.back()}
-          style={{ background: 'none', border: 'none', color: 'var(--color-text-secondary)', fontSize: '20px' }}
+          style={{ background: 'none', border: 'none', color: 'var(--color-text-secondary)', fontSize: '20px', cursor: 'pointer' }}
         >
           ←
         </button>
         <span style={{ fontWeight: '600', fontSize: 'var(--font-size-md)' }}>
-          {session.title}
+          {title}
         </span>
-        <div style={{ width: '32px' }} />
+        {/* ← War vorher: <div style={{ width: '32px' }} /> */}
+        <WorkoutOptionsMenu
+          sessionId={session.id}
+          currentTitle={title}
+          onRenamed={setTitle}
+        />
       </div>
 
       <div style={{ padding: 'var(--spacing-md)', display: 'flex', flexDirection: 'column', gap: 'var(--spacing-lg)' }}>
@@ -87,7 +342,7 @@ export default function LogbookDetailClient({ session, workoutExercises, sets, p
           </div>
         </div>
 
-        {/* PRs — nur Count */}
+        {/* PRs */}
         {sessionPRs.length > 0 && (
           <div className="glass" style={{ padding: 'var(--spacing-md)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -109,7 +364,6 @@ export default function LogbookDetailClient({ session, workoutExercises, sets, p
 
           return (
             <div key={ex.id}>
-              {/* Exercise Header */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)', marginBottom: 'var(--spacing-sm)' }}>
                 <div style={{
                   width: '36px', height: '36px',
@@ -130,7 +384,6 @@ export default function LogbookDetailClient({ session, workoutExercises, sets, p
                 </div>
               </div>
 
-              {/* Sets Table */}
               <div className="glass" style={{ overflow: 'hidden' }}>
                 <div style={{
                   display: 'grid', gridTemplateColumns: '32px 1fr 1fr',

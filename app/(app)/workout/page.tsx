@@ -25,10 +25,7 @@ export default async function WorkoutPage({
 
     const { data: workoutExercises } = await supabase
         .from('workout_exercises')
-        .select(`
-      *,
-      exercises(id, external_id, name, source)
-    `)
+        .select(`*, exercises(id, external_id, name, source)`)
         .eq('workout_session_id', sessionId)
         .order('position')
 
@@ -46,8 +43,38 @@ export default async function WorkoutPage({
             .select('exercise_id, pr_type, value')
             .eq('user_id', user.id)
             .in('exercise_id', exerciseIds)
-            .neq('workout_session_id', sessionId) // ← aktuelle Session ausschliessen
+            .neq('workout_session_id', sessionId)
         : { data: [] }
+
+    // ── Vorherige Sets für "Zuvor"-Spalte ────────────────────────────────────
+    // Für jede Übung: die Sets aus dem letzten abgeschlossenen Workout holen
+    type PrevSet = { weight_kg: number | null; reps: number | null; set_number: number }
+    const previousSets: Record<string, PrevSet[]> = {}
+
+    if (exerciseIds.length > 0) {
+        const { data: prevData } = await supabase
+            .from('workout_exercises')
+            .select(`
+                exercise_id,
+                sets(weight_kg, reps, set_number),
+                workout_sessions!inner(finished_at, status, user_id)
+            `)
+            .eq('workout_sessions.user_id', user.id)
+            .eq('workout_sessions.status', 'finished')
+            .neq('workout_session_id', sessionId)
+            .in('exercise_id', exerciseIds)
+            .order('workout_sessions(finished_at)', { ascending: false })
+
+        // Pro exercise_id nur den ersten (neusten) Eintrag nehmen
+        if (prevData) {
+            for (const we of prevData) {
+                if (!previousSets[we.exercise_id] && (we.sets as any[])?.length > 0) {
+                    previousSets[we.exercise_id] = (we.sets as any[])
+                        .sort((a, b) => a.set_number - b.set_number)
+                }
+            }
+        }
+    }
 
     return (
         <WorkoutClient
@@ -55,6 +82,7 @@ export default async function WorkoutPage({
             initialExercises={workoutExercises ?? []}
             initialSets={sets ?? []}
             existingPRs={existingPRs ?? []}
+            previousSets={previousSets}
         />
     )
 }
