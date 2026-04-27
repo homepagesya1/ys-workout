@@ -56,6 +56,20 @@ export default function AccountClient({ profile, userId, stats }: Props) {
               zIndex: 10,
             }}>
               <button
+                onClick={() => { setMenuOpen(false); router.push('/account/help') }}
+                style={{
+                  width: '100%', padding: 'var(--spacing-md)',
+                  background: 'none', border: 'none',
+                  color: 'var(--color-text)',
+                  textAlign: 'left',
+                  fontSize: 'var(--font-size-base)',
+                  fontWeight: '500',
+                  borderBottom: '1px solid rgba(255,255,255,0.05)',
+                }}
+              >
+                Hilfe
+              </button>
+              <button
                 onClick={() => { setMenuOpen(false); router.push('/account/theme') }}
                 style={{
                   width: '100%', padding: 'var(--spacing-md)',
