@@ -9,13 +9,9 @@ export async function middleware(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        getAll() {
-          return request.cookies.getAll()
-        },
+        getAll() { return request.cookies.getAll() },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) =>
-            request.cookies.set(name, value)
-          )
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
           supabaseResponse = NextResponse.next({ request })
           cookiesToSet.forEach(({ name, value, options }) =>
             supabaseResponse.cookies.set(name, value, options)
@@ -27,26 +23,29 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
 
-  const isAuthPage = request.nextUrl.pathname.startsWith('/login') ||
-                     request.nextUrl.pathname.startsWith('/register')
+  const isPublicPage =
+    request.nextUrl.pathname.startsWith('/login') ||
+    request.nextUrl.pathname.startsWith('/register') ||
+    request.nextUrl.pathname.startsWith('/auth') ||   // OAuth callback
+    request.nextUrl.pathname.startsWith('/help')      // öffentliche Hilfeseite
 
-  if (!user && !isAuthPage) {
+  if (!user && !isPublicPage) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  if (user && !isAuthPage) {
+  if (user && !isPublicPage) {
     const { data: profile } = await supabase
       .from('profiles')
       .select('is_approved')
       .eq('id', user.id)
       .single()
 
-    if (!profile?.is_approved) {
+    if (profile?.is_approved === false) {
       return NextResponse.redirect(new URL('/login?pending=true', request.url))
     }
   }
 
-  if (user && isAuthPage) {
+  if (user && isPublicPage && !request.nextUrl.pathname.startsWith('/auth')) {
     return NextResponse.redirect(new URL('/routines', request.url))
   }
 

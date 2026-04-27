@@ -83,7 +83,6 @@ export default function RegisterPage() {
               </div>
             )}
             <OAuthButton label="Mit Google registrieren" icon={<GoogleIcon />} onClick={() => handleOAuth('google')} />
-            <OAuthButton label="Mit Apple registrieren" icon={<AppleIcon />} onClick={() => handleOAuth('apple')} />
             <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
               <div style={{ flex: 1, height: '1px', background: 'rgba(151,125,255,0.2)' }} />
               <span style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)' }}>oder</span>
