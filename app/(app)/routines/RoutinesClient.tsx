@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import type { Routine } from '@/types'
 import ActiveWorkoutBanner from '@/components/ui/ActiveWorkoutBanner'
+import WelcomePopup from '@/components/ui/WelcomePopup'
 
 interface RoutineWithCount extends Routine {
     routine_exercises: { count: number }[]
@@ -14,13 +15,14 @@ function getTodayTitle() {
     return `Workout ${new Date().toLocaleDateString('de-CH', { day: '2-digit', month: '2-digit', year: 'numeric' })}`
 }
 
-export default function RoutinesClient({ routines }: { routines: RoutineWithCount[] }) {
+export default function RoutinesClient({ routines, showWelcome = false }: { routines: RoutineWithCount[]; showWelcome?: boolean }) {
     const router = useRouter()
     const [showNewModal, setShowNewModal] = useState(false)
     const [newTitle, setNewTitle] = useState('')
     const [newDesc, setNewDesc] = useState('')
     const [menuOpen, setMenuOpen] = useState<string | null>(null)
     const [loading, setLoading] = useState(false)
+    const [welcomeOpen, setWelcomeOpen] = useState(showWelcome)
 
     async function startEmptyWorkout() {
         const supabase = createClient()
@@ -122,6 +124,17 @@ export default function RoutinesClient({ routines }: { routines: RoutineWithCoun
 
     return (
         <main style={{ padding: 'var(--spacing-md)', paddingTop: 'var(--spacing-xl)' }}>
+
+            {welcomeOpen && (
+                <WelcomePopup
+                    onClose={() => {
+                        setWelcomeOpen(false)
+                        // URL sauber machen ohne Reload
+                        router.replace('/routines')
+                    }}
+                />
+            )}
+
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--spacing-lg)' }}>
                 <h1 style={{ fontSize: 'var(--font-size-xl)', fontWeight: '700' }}>Routines</h1>

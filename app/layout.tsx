@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import ThemeProvider from "@/components/ThemeProvider";
 
 export const metadata: Metadata = {
   title: "YS.Workout",
@@ -20,17 +21,19 @@ export default function RootLayout({
     <html lang="de">
       <head>
         <link rel="manifest" href="/manifest.webmanifest" />
-        <meta name="theme-color" content="#0a0a0a" />
-        {/* iOS Touch Icons — Safari liest diese direkt */}
+        <meta name="theme-color" content="#09090F" />
         <link rel="apple-touch-icon" sizes="192x192" href="/icon-dark-192.png" />
         <link rel="apple-touch-icon" sizes="512x512" href="/icon-dark-512.png" />
-        {/* Viewport für Safe Areas (Notch/Dynamic Island) */}
         <meta
           name="viewport"
           content="width=device-width, initial-scale=1, viewport-fit=cover"
         />
       </head>
-      <body>{children}</body>
+      <body>
+        {/* 'obsidian' = Fallback falls localStorage leer ist */}
+        <ThemeProvider scheme="obsidian" />
+        {children}
+      </body>
     </html>
   );
 }

@@ -10,14 +10,25 @@
   --spacing-lg: 24px;
   --spacing-xl: 32px;
 
-  --font-size-sm:   12px;
+  --font-size-sm: 12px;
   --font-size-base: 14px;
-  --font-size-md:   16px;
-  --font-size-lg:   20px;
-  --font-size-xl:   24px;
+  --font-size-md: 16px;
+  --font-size-lg: 20px;
+  --font-size-xl: 24px;
 
   --transition: 0.2s ease;
   --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4);
+
+  /* Vulkan Default — wird überschrieben sobald Theme geladen */
+  --color-bg: #09090F;
+  --color-primary: #8B5CF6;
+  --color-card: #13111F;
+  --color-set-row: #13111F;
+  --color-set-row-alt: #0F0E1A;
+  --color-text: #E8E8F5;
+  --color-text-secondary: #7A78A0;
+  --color-danger: #FF4444;
+  --color-success: #4CAF50;
 }
 
 .glass {
@@ -59,14 +70,21 @@ body {
   overflow-x: hidden;
 }
 
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
 ::-webkit-scrollbar-thumb {
   background: var(--color-primary);
   border-radius: var(--radius-full);
 }
 
-input, textarea {
+input,
+textarea {
   background: transparent;
   color: var(--color-text);
   border: none;
@@ -75,7 +93,8 @@ input, textarea {
   width: 100%;
 }
 
-input::placeholder, textarea::placeholder {
+input::placeholder,
+textarea::placeholder {
   color: var(--color-text-secondary);
 }
 
@@ -85,4 +104,6 @@ button {
   transition: opacity var(--transition);
 }
 
-button:active { opacity: 0.8; }
+button:active {
+  opacity: 0.8;
+}

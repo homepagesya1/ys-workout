@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
-import WelcomePopup from '@/components/ui/WelcomePopup'
 
 function OAuthButton({ label, icon, onClick }: { label: string; icon: React.ReactNode; onClick: () => void }) {
   return (
@@ -28,18 +27,12 @@ const GoogleIcon = () => (
   </svg>
 )
 
-const AppleIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
-  </svg>
-)
-
 export default function RegisterPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [error, setError] = useState('')
-  const [showPopup, setShowPopup] = useState(false)
+  const [success, setSuccess] = useState(false)
   const [loading, setLoading] = useState(false)
 
   async function handleRegister(e: React.FormEvent) {
@@ -51,11 +44,11 @@ export default function RegisterPage() {
     const supabase = createClient()
     const { error: authError } = await supabase.auth.signUp({ email, password })
     if (authError) { setError(authError.message); setLoading(false); return }
-    setShowPopup(true)
+    setSuccess(true)
     setLoading(false)
   }
 
-  async function handleOAuth(provider: 'google' | 'apple') {
+  async function handleOAuth(provider: 'google') {
     const supabase = createClient()
     await supabase.auth.signInWithOAuth({
       provider,
@@ -63,55 +56,85 @@ export default function RegisterPage() {
     })
   }
 
-  return (
-    <>
-      {showPopup && <WelcomePopup onClose={() => setShowPopup(false)} />}
+  // Nach Registrierung: einfache Bestätigung, Popup kommt beim ersten Login
+  if (success) {
+    return (
       <main style={{
         minHeight: '100dvh', display: 'flex', flexDirection: 'column',
         alignItems: 'center', justifyContent: 'center',
         padding: 'var(--spacing-lg)', backgroundColor: 'var(--color-bg)',
       }}>
-        <div style={{ width: '100%', maxWidth: '380px' }}>
-          <div style={{ textAlign: 'center', marginBottom: 'var(--spacing-xl)' }}>
-            <h1 style={{ fontSize: '28px', fontWeight: '700', color: 'var(--color-primary)', letterSpacing: '-0.5px' }}>YS.Workout</h1>
-            <p style={{ color: 'var(--color-text-secondary)', marginTop: 'var(--spacing-xs)', fontSize: 'var(--font-size-sm)' }}>Create your account</p>
-          </div>
-          <div className="glass" style={{ padding: 'var(--spacing-lg)', display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
-            {error && (
-              <div style={{ background: 'rgba(255,68,68,0.15)', border: '1px solid rgba(255,68,68,0.3)', borderRadius: 'var(--radius-main)', padding: 'var(--spacing-sm) var(--spacing-md)', fontSize: 'var(--font-size-sm)', color: 'var(--color-danger)', textAlign: 'center' }}>
-                {error}
-              </div>
-            )}
-            <OAuthButton label="Mit Google registrieren" icon={<GoogleIcon />} onClick={() => handleOAuth('google')} />
-            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
-              <div style={{ flex: 1, height: '1px', background: 'rgba(151,125,255,0.2)' }} />
-              <span style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)' }}>oder</span>
-              <div style={{ flex: 1, height: '1px', background: 'rgba(151,125,255,0.2)' }} />
-            </div>
-            <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
-              <div style={{ borderBottom: '1px solid rgba(151,125,255,0.3)', paddingBottom: 'var(--spacing-sm)' }}>
-                <label style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)', display: 'block', marginBottom: '4px' }}>E-Mail</label>
-                <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="your@email.com" required autoComplete="email" />
-              </div>
-              <div style={{ borderBottom: '1px solid rgba(151,125,255,0.3)', paddingBottom: 'var(--spacing-sm)' }}>
-                <label style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)', display: 'block', marginBottom: '4px' }}>Password</label>
-                <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="min. 8 Zeichen" required autoComplete="new-password" />
-              </div>
-              <div style={{ borderBottom: '1px solid rgba(151,125,255,0.3)', paddingBottom: 'var(--spacing-sm)' }}>
-                <label style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)', display: 'block', marginBottom: '4px' }}>Passwort bestätigen</label>
-                <input type="password" value={confirm} onChange={e => setConfirm(e.target.value)} placeholder="••••••••" required autoComplete="new-password" />
-              </div>
-              <button type="submit" disabled={loading} style={{ width: '100%', padding: 'var(--spacing-md)', background: loading ? 'rgba(151,125,255,0.4)' : 'var(--color-primary)', color: 'var(--color-text)', border: 'none', borderRadius: 'var(--radius-full)', fontSize: 'var(--font-size-md)', fontWeight: '600', cursor: loading ? 'not-allowed' : 'pointer' }}>
-                {loading ? 'Registrieren...' : 'Registrieren'}
-              </button>
-            </form>
-            <p style={{ textAlign: 'center', fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)' }}>
-              Bereits ein Account?{' '}
-              <Link href="/login" style={{ color: 'var(--color-primary)', textDecoration: 'none', fontWeight: '500' }}>Login</Link>
-            </p>
-          </div>
+        <div className="glass" style={{
+          width: '100%', maxWidth: '380px', padding: 'var(--spacing-xl)',
+          textAlign: 'center', display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)',
+        }}>
+          <div style={{ fontSize: '48px' }}>✅</div>
+          <h2 style={{ color: 'var(--color-primary)', fontWeight: '600' }}>Account erstellt!</h2>
+          <p style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--font-size-sm)' }}>
+            Du kannst dich jetzt einloggen.
+          </p>
+          <Link href="/login" style={{
+            padding: 'var(--spacing-md)',
+            background: 'var(--color-primary)',
+            color: 'var(--color-text)',
+            borderRadius: 'var(--radius-full)',
+            textDecoration: 'none',
+            fontWeight: '600',
+            fontSize: 'var(--font-size-md)',
+          }}>
+            Zum Login
+          </Link>
         </div>
       </main>
-    </>
+    )
+  }
+
+  return (
+    <main style={{
+      minHeight: '100dvh', display: 'flex', flexDirection: 'column',
+      alignItems: 'center', justifyContent: 'center',
+      padding: 'var(--spacing-lg)', backgroundColor: 'var(--color-bg)',
+    }}>
+      <div style={{ width: '100%', maxWidth: '380px' }}>
+        <div style={{ textAlign: 'center', marginBottom: 'var(--spacing-xl)' }}>
+          <h1 style={{ fontSize: '28px', fontWeight: '700', color: 'var(--color-primary)', letterSpacing: '-0.5px' }}>YS.Workout</h1>
+          <p style={{ color: 'var(--color-text-secondary)', marginTop: 'var(--spacing-xs)', fontSize: 'var(--font-size-sm)' }}>Create your account</p>
+        </div>
+        <div className="glass" style={{ padding: 'var(--spacing-lg)', display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
+          {error && (
+            <div style={{ background: 'rgba(255,68,68,0.15)', border: '1px solid rgba(255,68,68,0.3)', borderRadius: 'var(--radius-main)', padding: 'var(--spacing-sm) var(--spacing-md)', fontSize: 'var(--font-size-sm)', color: 'var(--color-danger)', textAlign: 'center' }}>
+              {error}
+            </div>
+          )}
+          <OAuthButton label="Mit Google registrieren" icon={<GoogleIcon />} onClick={() => handleOAuth('google')} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
+            <div style={{ flex: 1, height: '1px', background: 'rgba(151,125,255,0.2)' }} />
+            <span style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)' }}>oder</span>
+            <div style={{ flex: 1, height: '1px', background: 'rgba(151,125,255,0.2)' }} />
+          </div>
+          <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
+            <div style={{ borderBottom: '1px solid rgba(151,125,255,0.3)', paddingBottom: 'var(--spacing-sm)' }}>
+              <label style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)', display: 'block', marginBottom: '4px' }}>E-Mail</label>
+              <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="your@email.com" required autoComplete="email" />
+            </div>
+            <div style={{ borderBottom: '1px solid rgba(151,125,255,0.3)', paddingBottom: 'var(--spacing-sm)' }}>
+              <label style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)', display: 'block', marginBottom: '4px' }}>Password</label>
+              <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="min. 8 Zeichen" required autoComplete="new-password" />
+            </div>
+            <div style={{ borderBottom: '1px solid rgba(151,125,255,0.3)', paddingBottom: 'var(--spacing-sm)' }}>
+              <label style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)', display: 'block', marginBottom: '4px' }}>Passwort bestätigen</label>
+              <input type="password" value={confirm} onChange={e => setConfirm(e.target.value)} placeholder="••••••••" required autoComplete="new-password" />
+            </div>
+            <button type="submit" disabled={loading} style={{ width: '100%', padding: 'var(--spacing-md)', background: loading ? 'rgba(151,125,255,0.4)' : 'var(--color-primary)', color: 'var(--color-text)', border: 'none', borderRadius: 'var(--radius-full)', fontSize: 'var(--font-size-md)', fontWeight: '600', cursor: loading ? 'not-allowed' : 'pointer' }}>
+              {loading ? 'Registrieren...' : 'Registrieren'}
+            </button>
+          </form>
+          <p style={{ textAlign: 'center', fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)' }}>
+            Bereits ein Account?{' '}
+            <Link href="/login" style={{ color: 'var(--color-primary)', textDecoration: 'none', fontWeight: '500' }}>Login</Link>
+          </p>
+        </div>
+      </div>
+    </main>
   )
 }

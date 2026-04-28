@@ -83,7 +83,7 @@ export const THEMES: Theme[] = [
 ]
 
 export function applyTheme(id: ThemeId) {
-  const theme = THEMES.find(t => t.id === id) ?? THEMES[0]
+  const theme = THEMES.find(t => t.id === id) ?? THEMES.find(t => t.id === 'obsidian')!
   const root = document.documentElement
   root.style.setProperty('--color-bg', theme.bg)
   root.style.setProperty('--color-primary', theme.primary)

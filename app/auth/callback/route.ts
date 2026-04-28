@@ -5,7 +5,6 @@ import { NextRequest, NextResponse } from 'next/server'
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
-  const next = searchParams.get('next') ?? '/routines'
 
   if (code) {
     const cookieStore = await cookies()
@@ -25,11 +24,31 @@ export async function GET(request: NextRequest) {
     )
 
     const { error } = await supabase.auth.exchangeCodeForSession(code)
+
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`)
+      const { data: { user } } = await supabase.auth.getUser()
+
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('has_seen_welcome')
+          .eq('id', user.id)
+          .single()
+
+        // Erster Login → welcome=1 mitgeben, Flag setzen
+        if (!profile?.has_seen_welcome) {
+          await supabase
+            .from('profiles')
+            .update({ has_seen_welcome: true })
+            .eq('id', user.id)
+
+          return NextResponse.redirect(`${origin}/routines?welcome=1`)
+        }
+      }
+
+      return NextResponse.redirect(`${origin}/routines`)
     }
   }
 
-  // Bei Fehler → zurück zum Login
   return NextResponse.redirect(`${origin}/login?error=oauth`)
 }
