@@ -22,6 +22,7 @@ export default function RoutinesClient({ routines, showWelcome = false }: { rout
     const [newDesc, setNewDesc] = useState('')
     const [menuOpen, setMenuOpen] = useState<string | null>(null)
     const [loading, setLoading] = useState(false)
+    const [copyingId, setCopyingId] = useState<string | null>(null)
     const [welcomeOpen, setWelcomeOpen] = useState(showWelcome)
 
     async function startEmptyWorkout() {
@@ -122,6 +123,81 @@ export default function RoutinesClient({ routines, showWelcome = false }: { rout
         router.refresh()
     }
 
+    // ── Copy Routine ──────────────────────────────────────────────────────────
+    async function copyRoutine(routine: RoutineWithCount) {
+        setMenuOpen(null)
+        setCopyingId(routine.id)
+        const supabase = createClient()
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) { setCopyingId(null); return }
+
+        // 1. Neue Routine anlegen
+        const { data: newRoutine } = await supabase
+            .from('routines')
+            .insert({
+                user_id: user.id,
+                title: `${routine.title} (Kopie)`,
+                description: routine.description ?? null,
+            })
+            .select()
+            .single()
+
+        if (!newRoutine) { setCopyingId(null); return }
+
+        // 2. Alle Exercises + Sets der Original-Routine laden
+        const { data: exercises } = await supabase
+            .from('routine_exercises')
+            .select(`*, routine_sets(*)`)
+            .eq('routine_id', routine.id)
+            .order('position')
+
+        // 3. Exercises + Sets in die neue Routine kopieren
+        if (exercises && exercises.length > 0) {
+            for (const ex of exercises) {
+                const { data: newEx } = await supabase
+                    .from('routine_exercises')
+                    .insert({
+                        routine_id: newRoutine.id,
+                        exercise_id: ex.exercise_id,
+                        position: ex.position,
+                        default_sets: ex.default_sets,
+                        superset_group: ex.superset_group,
+                    })
+                    .select()
+                    .single()
+
+                if (!newEx) continue
+
+                const sets = ex.routine_sets ?? []
+                if (sets.length > 0) {
+                    await supabase.from('routine_sets').insert(
+                        sets.map((s: any) => ({
+                            routine_exercise_id: newEx.id,
+                            set_number: s.set_number,
+                            weight_kg: s.weight_kg,
+                            reps: s.reps,
+                        }))
+                    )
+                }
+            }
+        }
+
+        setCopyingId(null)
+        router.refresh()
+    }
+
+    const menuItemStyle: React.CSSProperties = {
+        width: '100%',
+        padding: 'var(--spacing-md)',
+        background: 'none',
+        border: 'none',
+        color: 'var(--color-text)',
+        textAlign: 'left',
+        fontSize: 'var(--font-size-base)',
+        borderBottom: '1px solid color-mix(in srgb, var(--color-text) 5%, transparent)',
+        cursor: 'pointer',
+    }
+
     return (
         <main style={{ padding: 'var(--spacing-md)', paddingTop: 'var(--spacing-xl)' }}>
 
@@ -129,12 +205,10 @@ export default function RoutinesClient({ routines, showWelcome = false }: { rout
                 <WelcomePopup
                     onClose={() => {
                         setWelcomeOpen(false)
-                        // URL sauber machen ohne Reload
                         router.replace('/routines')
                     }}
                 />
             )}
-
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--spacing-lg)' }}>
                 <h1 style={{ fontSize: 'var(--font-size-xl)', fontWeight: '700' }}>Routines</h1>
@@ -144,7 +218,7 @@ export default function RoutinesClient({ routines, showWelcome = false }: { rout
                 onClick={startEmptyWorkout}
                 style={{ width: '100%', padding: 'var(--spacing-md)', background: 'color-mix(in srgb, var(--color-primary) 15%, transparent)', border: '1px solid color-mix(in srgb, var(--color-primary) 40%, transparent)', borderRadius: 'var(--radius-main)', color: 'var(--color-primary)', fontSize: 'var(--font-size-md)', fontWeight: '600', marginBottom: 'var(--spacing-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--spacing-sm)' }}
             >
-                <span style={{ fontSize: '18px' }}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" ><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg></span>
+                <span style={{ fontSize: '18px' }}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg></span>
                 Start Empty Workout
             </button>
 
@@ -156,16 +230,34 @@ export default function RoutinesClient({ routines, showWelcome = false }: { rout
                 )}
 
                 {routines.map(routine => (
-                    <div key={routine.id} className="glass" style={{ padding: 'var(--spacing-md)', position: 'relative', cursor: 'pointer' }}>
+                    <div key={routine.id} className="glass" style={{ padding: 'var(--spacing-md)', position: 'relative', cursor: 'pointer', opacity: copyingId === routine.id ? 0.6 : 1, transition: 'opacity 0.2s' }}>
                         <button
                             onClick={e => { e.stopPropagation(); setMenuOpen(menuOpen === routine.id ? null : routine.id) }}
                             style={{ position: 'absolute', top: 'var(--spacing-md)', right: 'var(--spacing-md)', background: 'none', border: 'none', color: 'var(--color-text-secondary)', fontSize: '18px', padding: '4px', lineHeight: 1 }}
-                        >···</button>
+                        >
+                            {copyingId === routine.id ? '⏳' : '···'}
+                        </button>
 
                         {menuOpen === routine.id && (
                             <div style={{ position: 'absolute', top: '40px', right: 'var(--spacing-md)', background: 'var(--color-card)', border: '1px solid color-mix(in srgb, var(--color-primary) 20%, transparent)', borderRadius: 'var(--radius-main)', overflow: 'hidden', zIndex: 10, minWidth: '160px', boxShadow: 'var(--shadow-card)' }}>
-                                <button onClick={() => { router.push(`/routines/${routine.id}/edit`); setMenuOpen(null) }} style={{ width: '100%', padding: 'var(--spacing-md)', background: 'none', border: 'none', color: 'var(--color-text)', textAlign: 'left', fontSize: 'var(--font-size-base)', borderBottom: '1px solid color-mix(in srgb, var(--color-text) 5%, transparent)' }}>Edit</button>
-                                <button onClick={() => deleteRoutine(routine.id)} style={{ width: '100%', padding: 'var(--spacing-md)', background: 'none', border: 'none', color: 'var(--color-danger)', textAlign: 'left', fontSize: 'var(--font-size-base)' }}>Delete</button>
+                                <button
+                                    onClick={() => { router.push(`/routines/${routine.id}/edit`); setMenuOpen(null) }}
+                                    style={menuItemStyle}
+                                >
+                                    Edit
+                                </button>
+                                <button
+                                    onClick={() => copyRoutine(routine)}
+                                    style={menuItemStyle}
+                                >
+                                    Copy Routine
+                                </button>
+                                <button
+                                    onClick={() => deleteRoutine(routine.id)}
+                                    style={{ ...menuItemStyle, color: 'var(--color-danger)', borderBottom: 'none' }}
+                                >
+                                    Delete
+                                </button>
                             </div>
                         )}
 
@@ -185,7 +277,9 @@ export default function RoutinesClient({ routines, showWelcome = false }: { rout
             <button
                 onClick={() => setShowNewModal(true)}
                 style={{ position: 'fixed', bottom: '88px', right: 'var(--spacing-lg)', width: '52px', height: '52px', borderRadius: '50%', background: 'var(--color-primary)', border: 'none', padding: '0', margin: '0', display: 'grid', placeItems: 'center', boxShadow: `0 4px 16px color-mix(in srgb, var(--color-primary) 40%, transparent)`, zIndex: 50, cursor: 'pointer' }}
-            ><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg></button>
+            >
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+            </button>
 
             {showNewModal && (
                 <div onClick={() => setShowNewModal(false)} style={{ position: 'fixed', inset: 0, background: 'color-mix(in srgb, var(--color-bg) 60%, transparent)', display: 'flex', alignItems: 'flex-end', zIndex: 200 }}>
@@ -206,6 +300,7 @@ export default function RoutinesClient({ routines, showWelcome = false }: { rout
                     </div>
                 </div>
             )}
+
             <ActiveWorkoutBanner />
         </main>
     )
