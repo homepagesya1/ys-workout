@@ -168,3 +168,5 @@ Kein Feedback ist zu klein.
 Made with 🖤 by Yannick Salm
 
 </div>
+
+Bug: custom exercises werden nicht in filter mit einbezogen!

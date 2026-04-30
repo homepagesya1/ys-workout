@@ -23,7 +23,7 @@ export default function AccountClient({ profile, userId, stats }: Props) {
   async function handleLogout() {
     const supabase = createClient()
     await supabase.auth.signOut()
-    router.push('/login')
+    router.push('/')
     router.refresh()
   }
 
@@ -56,28 +56,24 @@ export default function AccountClient({ profile, userId, stats }: Props) {
               zIndex: 10,
             }}>
               <button
-                onClick={() => { setMenuOpen(false); router.push('/account/help') }}
+                onClick={() => { setMenuOpen(false); router.push('/help') }}
                 style={{
                   width: '100%', padding: 'var(--spacing-md)',
                   background: 'none', border: 'none',
-                  color: 'var(--color-text)',
-                  textAlign: 'left',
-                  fontSize: 'var(--font-size-base)',
-                  fontWeight: '500',
+                  color: 'var(--color-text)', textAlign: 'left',
+                  fontSize: 'var(--font-size-base)', fontWeight: '500',
                   borderBottom: '1px solid rgba(255,255,255,0.05)',
                 }}
               >
-                Hilfe
+                Help
               </button>
               <button
                 onClick={() => { setMenuOpen(false); router.push('/account/theme') }}
                 style={{
                   width: '100%', padding: 'var(--spacing-md)',
                   background: 'none', border: 'none',
-                  color: 'var(--color-text)',
-                  textAlign: 'left',
-                  fontSize: 'var(--font-size-base)',
-                  fontWeight: '500',
+                  color: 'var(--color-text)', textAlign: 'left',
+                  fontSize: 'var(--font-size-base)', fontWeight: '500',
                   borderBottom: '1px solid rgba(255,255,255,0.05)',
                 }}
               >
@@ -88,10 +84,8 @@ export default function AccountClient({ profile, userId, stats }: Props) {
                 style={{
                   width: '100%', padding: 'var(--spacing-md)',
                   background: 'none', border: 'none',
-                  color: 'var(--color-danger)',
-                  textAlign: 'left',
-                  fontSize: 'var(--font-size-base)',
-                  fontWeight: '500',
+                  color: 'var(--color-danger)', textAlign: 'left',
+                  fontSize: 'var(--font-size-base)', fontWeight: '500',
                 }}
               >
                 Sign out
@@ -103,20 +97,15 @@ export default function AccountClient({ profile, userId, stats }: Props) {
 
       {/* Profile */}
       <div className="glass" style={{
-        padding: 'var(--spacing-lg)',
-        display: 'flex',
-        alignItems: 'center',
-        gap: 'var(--spacing-md)',
-        marginBottom: 'var(--spacing-lg)',
+        padding: 'var(--spacing-lg)', display: 'flex',
+        alignItems: 'center', gap: 'var(--spacing-md)', marginBottom: 'var(--spacing-lg)',
       }}>
         <div style={{
-          width: '64px', height: '64px',
-          borderRadius: 'var(--radius-full)',
-          background: 'var(--color-primary)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          width: '64px', height: '64px', borderRadius: 'var(--radius-full)',
+          background: 'var(--color-primary)', display: 'flex',
+          alignItems: 'center', justifyContent: 'center',
           fontSize: '24px', fontWeight: '700',
-          color: 'white', flexShrink: 0,
-          overflow: 'hidden',
+          color: 'white', flexShrink: 0, overflow: 'hidden',
         }}>
           {profile?.avatar_url
             ? <img src={profile.avatar_url} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -134,12 +123,7 @@ export default function AccountClient({ profile, userId, stats }: Props) {
       </div>
 
       {/* Stats */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(3, 1fr)',
-        gap: 'var(--spacing-md)',
-        marginBottom: 'var(--spacing-lg)',
-      }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--spacing-md)', marginBottom: 'var(--spacing-lg)' }}>
         {[
           { label: 'Workouts', value: stats.totalWorkouts },
           { label: 'PRs', value: stats.totalPRs },

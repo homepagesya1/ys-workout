@@ -56,7 +56,6 @@ export default function RegisterPage() {
     })
   }
 
-  // Nach Registrierung: einfache Bestätigung, Popup kommt beim ersten Login
   if (success) {
     return (
       <main style={{
@@ -97,8 +96,23 @@ export default function RegisterPage() {
     }}>
       <div style={{ width: '100%', maxWidth: '380px' }}>
         <div style={{ textAlign: 'center', marginBottom: 'var(--spacing-xl)' }}>
-          <h1 style={{ fontSize: '28px', fontWeight: '700', color: 'var(--color-primary)', letterSpacing: '-0.5px' }}>YS.Workout</h1>
-          <p style={{ color: 'var(--color-text-secondary)', marginTop: 'var(--spacing-xs)', fontSize: 'var(--font-size-sm)' }}>Create your account</p>
+          <Link href="/" style={{ textDecoration: 'none' }}>
+            <h1
+              style={{
+                fontSize: '28px', fontWeight: '700',
+                color: 'var(--color-primary)', letterSpacing: '-0.5px',
+                display: 'inline-block',
+                transition: 'opacity 0.2s ease',
+              }}
+              onMouseOver={e => (e.currentTarget.style.opacity = '0.75')}
+              onMouseOut={e => (e.currentTarget.style.opacity = '1')}
+            >
+              YS.Workout
+            </h1>
+          </Link>
+          <p style={{ color: 'var(--color-text-secondary)', marginTop: 'var(--spacing-xs)', fontSize: 'var(--font-size-sm)' }}>
+            Create your account
+          </p>
         </div>
         <div className="glass" style={{ padding: 'var(--spacing-lg)', display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
           {error && (
