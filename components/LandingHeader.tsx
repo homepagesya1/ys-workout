@@ -65,13 +65,13 @@ export function LandingHeader() {
 
         {/* Right: Lang + Auth + Burger */}
         <div style={{ display: 'flex', gap: 'var(--spacing-sm)', alignItems: 'center' }}>
-          <LangToggle />
           <Link href="/login" className="land-btn-ghost" style={{ padding: '8px 16px', borderRadius: 'var(--radius-full)', color: 'var(--color-text-secondary)', fontSize: 'var(--font-size-sm)', fontWeight: '500', textDecoration: 'none', background: 'transparent' }}>
             {tr.nav.login}
           </Link>
           <Link href="/register" className="land-btn-primary" style={{ padding: '8px 18px', borderRadius: 'var(--radius-full)', background: 'var(--color-primary)', color: 'var(--color-text)', fontSize: 'var(--font-size-sm)', fontWeight: '600', textDecoration: 'none' }}>
             {tr.nav.register}
           </Link>
+          <LangToggle />
 
           {/* Burger — mobile only */}
           <button

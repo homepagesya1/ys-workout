@@ -45,7 +45,11 @@ export interface Translations {
     }
   }
   cta: { title: string; subtitle: string; button: string }
-  footer: { madeBy: string }
+  footer: {
+    madeBy: string
+    impressum: string
+    privacy: string
+  }
   help: { title: string; subtitle: string; back: string }
   install: {
     back: string
@@ -68,6 +72,39 @@ export interface Translations {
     successBody: string
     successAgain: string
     errorMsg: string
+  }
+  cookies: {
+    title: string
+    body: string
+    accept: string
+    decline: string
+    learnMore: string
+  }
+  impressum: {
+    back: string
+    title: string
+    legalNote: string
+    name: string
+    country: string
+    email: string
+    emailLabel: string
+    responsible: string
+    responsibleName: string
+  }
+  privacy: {
+    back: string
+    title: string
+    lastUpdated: string
+    sections: {
+      general: { title: string; body: string }
+      hosting: { title: string; body: string }
+      account: { title: string; body: string }
+      localCache: { title: string; body: string }
+      cookies: { title: string; body: string }
+      analytics: { title: string; body: string }
+      contact: { title: string; body: string }
+      rights: { title: string; body: string }
+    }
   }
 }
 
@@ -107,7 +144,11 @@ export const t: Record<Lang, Translations> = {
       soon: { title: 'Bald: Abo', body: 'In Zukunft wird YS.Workout ein kleines monatliches Abo erfordern. Geplant ist unter', price: '1 CHF / 1 Euro pro Monat', suffix: '. Wer früh dabei ist, profitiert von den besten Konditionen.', unavailable: 'Noch nicht verfügbar' },
     },
     cta: { title: 'Bereit, dein Training ernstzunehmen?', subtitle: 'Registriere dich jetzt gratis — keine Kreditkarte, kein Abo, kein Risiko.', button: 'Account erstellen — kostenlos' },
-    footer: { madeBy: 'Made by' },
+    footer: {
+      madeBy: 'Made by',
+      impressum: 'Impressum',
+      privacy: 'Datenschutz',
+    },
     help: { title: 'Hilfe', subtitle: 'YS.Workout — Anleitungen & Tipps', back: '← Zurück' },
     install: {
       back: '← Zurück zur Hilfe',
@@ -151,6 +192,63 @@ export const t: Record<Lang, Translations> = {
       successAgain: 'Weitere Nachricht senden',
       errorMsg: 'Etwas ist schiefgelaufen. Bitte versuch es nochmal.',
     },
+    cookies: {
+      title: 'Cookies & Datenschutz',
+      body: 'YS.Workout speichert deine Trainingsdaten lokal auf deinem Gerät für den Offline-Zugriff und nutzt Google Analytics zur anonymen Nutzungsanalyse. Für den Login wird ein Session-Cookie gesetzt.',
+      accept: 'Alles akzeptieren',
+      decline: 'Nur notwendige',
+      learnMore: 'Mehr erfahren',
+    },
+    impressum: {
+      back: '← Zurück',
+      title: 'Impressum',
+      legalNote: 'Angaben gemäss Art. 3 Abs. 1 lit. s UWG',
+      name: 'Yannick Salm',
+      country: 'Schweiz',
+      emailLabel: 'E-Mail',
+      email: 'yannicksalm07@gmail.com',
+      responsible: 'Verantwortlich für den Inhalt',
+      responsibleName: 'Yannick Salm',
+    },
+    privacy: {
+      back: '← Zurück',
+      title: 'Datenschutzerklärung',
+      lastUpdated: 'Zuletzt aktualisiert: Mai 2025',
+      sections: {
+        general: {
+          title: 'Allgemeines',
+          body: 'Der Schutz deiner persönlichen Daten ist mir ein wichtiges Anliegen. Diese Datenschutzerklärung informiert darüber, welche Daten beim Besuch dieser Website und bei der Nutzung von YS.Workout erhoben und verarbeitet werden. YS.Workout ist eine Trainings-Tracking-App, in der du Trainingspläne, Übungen, Sätze und Gewichte erfasst und langfristig verfolgst.',
+        },
+        hosting: {
+          title: 'Hosting',
+          body: 'Die Landing Page und die App werden über Cloudflare Pages und Cloudflare Workers gehostet. Beim Aufruf der Website verarbeitet Cloudflare technische Zugriffsdaten wie IP-Adresse, Browsertyp, Betriebssystem sowie Datum und Uhrzeit des Zugriffs. Diese Daten werden von Cloudflare zur Auslieferung der Seite und zum Schutz vor Missbrauch verarbeitet. Cloudflare Inc. ist nach dem EU-U.S. Data Privacy Framework zertifiziert.',
+        },
+        account: {
+          title: 'Account & Nutzerdaten',
+          body: 'Wenn du einen Account erstellst, werden deine E-Mail-Adresse und ein gehashtes Passwort gespeichert. Alle Trainingsdaten, die du erfasst — Pläne, Übungen, Sätze, Gewichte und Bestleistungen — werden auf einem gesicherten Server gespeichert und sind ausschliesslich mit deinem Account verknüpft. Diese Daten werden nicht an Dritte weitergegeben und ausschliesslich zur Bereitstellung der App-Funktionen verwendet. Du kannst die Löschung deines Accounts und aller zugehörigen Daten jederzeit per E-Mail an yannicksalm07@gmail.com anfragen.',
+        },
+        localCache: {
+          title: 'Lokaler Speicher & Offline-Cache',
+          body: 'YS.Workout nutzt den lokalen Speicher deines Geräts (localStorage und IndexedDB), um deine Trainingsdaten für den Offline-Zugriff zwischenzuspeichern. Dadurch funktioniert die App auch ohne aktive Internetverbindung, zum Beispiel im Gym. Diese Daten bleiben ausschliesslich auf deinem Gerät und werden nicht ohne deine Aktion an Server übertragen. Du kannst den lokalen Speicher jederzeit über die Einstellungen deines Browsers löschen.',
+        },
+        cookies: {
+          title: 'Cookies',
+          body: 'YS.Workout verwendet zwei Arten von Cookies: Notwendige Cookies, die für den Login und die sichere Session erforderlich sind — diese können nicht deaktiviert werden, da die App ohne sie nicht funktioniert. Sowie Analyse-Cookies von Google Analytics, die nur gesetzt werden, wenn du dem zugestimmt hast. Deine Cookie-Einwilligung wird ebenfalls im lokalen Speicher gespeichert, damit du nicht bei jedem Besuch erneut gefragt wirst.',
+        },
+        analytics: {
+          title: 'Google Analytics',
+          body: 'Diese Website nutzt Google Analytics, einen Webanalysedienst der Google Ireland Limited. Google Analytics verwendet Cookies, die eine anonymisierte Analyse der Websitenutzung ermöglichen. Deine IP-Adresse wird dabei vor der Speicherung gekürzt (IP-Anonymisierung). Die erhobenen Daten werden auf Servern von Google in den USA gespeichert. Google ist nach dem EU-U.S. Data Privacy Framework zertifiziert. Du kannst der Nutzung von Google Analytics widersprechen, indem du beim Cookie-Banner nur „Nur notwendige" auswählst. Eine nachträgliche Ablehnung ist über die Browsereinstellungen oder das Google Analytics Opt-out Add-on möglich.',
+        },
+        contact: {
+          title: 'Kontaktformular',
+          body: 'Wenn du das Kontaktformular verwendest, werden die von dir angegebenen Daten — Name, E-Mail-Adresse und Nachricht — ausschliesslich zur Bearbeitung deiner Anfrage verwendet. Die Daten werden nicht gespeichert oder an Dritte weitergegeben.',
+        },
+        rights: {
+          title: 'Deine Rechte',
+          body: 'Du hast das Recht auf Auskunft über deine gespeicherten personenbezogenen Daten, auf Berichtigung unrichtiger Daten sowie auf Löschung deiner Daten. Für alle Anfragen wende dich per E-Mail an yannicksalm07@gmail.com — ich bearbeite dein Anliegen so schnell wie möglich.',
+        },
+      },
+    },
   },
 
   en: {
@@ -188,7 +286,11 @@ export const t: Record<Lang, Translations> = {
       soon: { title: 'Coming soon: Subscription', body: 'In the future, YS.Workout will require a small monthly subscription. The plan is under', price: '€1 / CHF 1 per month', suffix: '. Early adopters will get the best conditions.', unavailable: 'Not available yet' },
     },
     cta: { title: 'Ready to take your training seriously?', subtitle: 'Sign up for free — no credit card, no subscription, no risk.', button: 'Create account — free' },
-    footer: { madeBy: 'Made by' },
+    footer: {
+      madeBy: 'Made by',
+      impressum: 'Legal Notice',
+      privacy: 'Privacy Policy',
+    },
     help: { title: 'Help', subtitle: 'YS.Workout — Guides & Tips', back: '← Back' },
     install: {
       back: '← Back to Help',
@@ -231,6 +333,63 @@ export const t: Record<Lang, Translations> = {
       successBody: "Thanks — I'll get back to you soon.",
       successAgain: 'Send another message',
       errorMsg: 'Something went wrong. Please try again.',
+    },
+    cookies: {
+      title: 'Cookies & Privacy',
+      body: 'YS.Workout stores your workout data locally on your device for offline access and uses Google Analytics for anonymous usage analysis. A session cookie is set when you log in.',
+      accept: 'Accept all',
+      decline: 'Necessary only',
+      learnMore: 'Learn more',
+    },
+    impressum: {
+      back: '← Back',
+      title: 'Legal Notice',
+      legalNote: 'Information according to Art. 3 Para. 1 lit. s UWG',
+      name: 'Yannick Salm',
+      country: 'Switzerland',
+      emailLabel: 'Email',
+      email: 'yannicksalm07@gmail.com',
+      responsible: 'Responsible for content',
+      responsibleName: 'Yannick Salm',
+    },
+    privacy: {
+      back: '← Back',
+      title: 'Privacy Policy',
+      lastUpdated: 'Last updated: May 2025',
+      sections: {
+        general: {
+          title: 'General',
+          body: 'Protecting your personal data is important to me. This privacy policy explains what data is collected and processed when you visit this website and use YS.Workout. YS.Workout is a workout tracking app where you log training plans, exercises, sets, and weights and track your progress over time.',
+        },
+        hosting: {
+          title: 'Hosting',
+          body: 'The landing page and app are hosted via Cloudflare Pages and Cloudflare Workers. When you access the website, Cloudflare processes technical access data such as IP address, browser type, operating system, and date and time of access. This data is processed by Cloudflare to deliver the page and protect against abuse. Cloudflare Inc. is certified under the EU-U.S. Data Privacy Framework.',
+        },
+        account: {
+          title: 'Account & User Data',
+          body: 'When you create an account, your email address and a hashed password are stored. All workout data you record — plans, exercises, sets, weights, and personal records — is stored on a secured server and linked exclusively to your account. This data is not shared with third parties and is used solely to provide the app\'s functionality. You can request deletion of your account and all associated data at any time by emailing yannicksalm07@gmail.com.',
+        },
+        localCache: {
+          title: 'Local Storage & Offline Cache',
+          body: 'YS.Workout uses your device\'s local storage (localStorage and IndexedDB) to cache your workout data for offline access. This allows the app to work without an active internet connection — for example, at the gym. This data remains exclusively on your device and is not transmitted to servers without your action. You can clear the local storage at any time through your browser settings.',
+        },
+        cookies: {
+          title: 'Cookies',
+          body: 'YS.Workout uses two types of cookies: necessary cookies required for login and secure session management — these cannot be disabled as the app requires them to function. And analytics cookies from Google Analytics, which are only set if you have consented. Your cookie preference is also stored in local storage so you are not asked again on every visit.',
+        },
+        analytics: {
+          title: 'Google Analytics',
+          body: 'This website uses Google Analytics, a web analytics service provided by Google Ireland Limited. Google Analytics uses cookies that enable anonymized analysis of website usage. Your IP address is shortened before storage (IP anonymization). The collected data is stored on Google servers in the USA. Google is certified under the EU-U.S. Data Privacy Framework. You can opt out of Google Analytics by selecting "Necessary only" in the cookie banner. You can also opt out later via your browser settings or the Google Analytics opt-out add-on.',
+        },
+        contact: {
+          title: 'Contact Form',
+          body: 'When you use the contact form, the data you provide — name, email address, and message — is used exclusively to process your inquiry. The data is not stored beyond this purpose or shared with third parties.',
+        },
+        rights: {
+          title: 'Your Rights',
+          body: 'You have the right to access your stored personal data, to correct inaccurate data, and to request deletion of your data. For all requests, contact me by email at yannicksalm07@gmail.com — I will handle your request as quickly as possible.',
+        },
+      },
     },
   },
 }

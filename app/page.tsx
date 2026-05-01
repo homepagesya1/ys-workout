@@ -4,6 +4,7 @@
 import Link from 'next/link'
 import { LandingHeader } from '@/components/LandingHeader'
 import { LandingFooter } from '@/components/LandingFooter'
+import { CookieBanner } from '@/components/CookieBanner'
 import { useLang } from '@/lib/LanguageContext'
 
 export default function HomePage() {
@@ -206,6 +207,9 @@ export default function HomePage() {
 
         <LandingFooter />
       </main>
+
+      {/* Cookie banner — rendered outside <main> so it floats above everything */}
+      <CookieBanner />
     </>
   )
 }
