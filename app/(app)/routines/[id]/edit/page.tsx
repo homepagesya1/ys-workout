@@ -31,10 +31,23 @@ export default async function RoutineEditPage({
     .eq('routine_id', id)
     .order('position')
 
+  // ── Exercise notes (main DB, per user per exercise) ──────────────────────
+  const exerciseIds = routineExercises?.map(re => re.exercise_id) ?? []
+  const initialNotes: Record<string, string> = {}
+  if (exerciseIds.length > 0) {
+    const { data: notesData } = await supabase
+      .from('exercise_notes')
+      .select('exercise_id, note')
+      .eq('user_id', user.id)
+      .in('exercise_id', exerciseIds)
+    notesData?.forEach(n => { initialNotes[n.exercise_id] = n.note })
+  }
+
   return (
     <RoutineEditClient
       routine={routine}
       initialExercises={routineExercises ?? []}
+      initialNotes={initialNotes}
     />
   )
 }

@@ -27,6 +27,7 @@
 *.pem
 .env
 wrangler.jsonc
+/ys-workout-cleanup/
 
 # debug
 npm-debug.log*

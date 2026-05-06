@@ -105,3 +105,12 @@ export interface ActiveWorkout {
   startedAt: string
   exercises: ActiveExercise[]
 }
+
+// Notes per user per exercise — stored in main Supabase DB
+export interface ExerciseNote {
+  id: string
+  user_id: string
+  exercise_id: string
+  note: string
+  updated_at: string
+}

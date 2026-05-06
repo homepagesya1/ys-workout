@@ -46,8 +46,7 @@ export default async function WorkoutPage({
             .neq('workout_session_id', sessionId)
         : { data: [] }
 
-    // ── Vorherige Sets für "Zuvor"-Spalte ────────────────────────────────────
-    // Für jede Übung: die Sets aus dem letzten abgeschlossenen Workout holen
+    // ── Previous sets for "Prev" column ─────────────────────────────────────
     type PrevSet = { weight_kg: number | null; reps: number | null; set_number: number }
     const previousSets: Record<string, PrevSet[]> = {}
 
@@ -65,7 +64,6 @@ export default async function WorkoutPage({
             .in('exercise_id', exerciseIds)
             .order('workout_sessions(finished_at)', { ascending: false })
 
-        // Pro exercise_id nur den ersten (neusten) Eintrag nehmen
         if (prevData) {
             for (const we of prevData) {
                 if (!previousSets[we.exercise_id] && (we.sets as any[])?.length > 0) {
@@ -76,6 +74,17 @@ export default async function WorkoutPage({
         }
     }
 
+    // ── Exercise notes (main DB, per user per exercise) ──────────────────────
+    const initialNotes: Record<string, string> = {}
+    if (exerciseIds.length > 0) {
+        const { data: notesData } = await supabase
+            .from('exercise_notes')
+            .select('exercise_id, note')
+            .eq('user_id', user.id)
+            .in('exercise_id', exerciseIds)
+        notesData?.forEach(n => { initialNotes[n.exercise_id] = n.note })
+    }
+
     return (
         <WorkoutClient
             session={session}
@@ -83,6 +92,7 @@ export default async function WorkoutPage({
             initialSets={sets ?? []}
             existingPRs={existingPRs ?? []}
             previousSets={previousSets}
+            initialNotes={initialNotes}
         />
     )
 }

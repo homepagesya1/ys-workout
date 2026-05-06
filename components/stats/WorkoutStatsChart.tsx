@@ -48,6 +48,15 @@ function getCutoffDate(range: TimeRange): Date | null {
     }
 }
 
+// FIX: format minutes as "Xhr Ymin" instead of raw minutes
+function formatMinutes(min: number): string {
+    const h = Math.floor(min / 60)
+    const m = min % 60
+    if (h > 0 && m > 0) return `${h}hr ${m}min`
+    if (h > 0) return `${h}hr`
+    return `${m}min`
+}
+
 export default function WorkoutStatsChart({ userId }: { userId: string }) {
     const [statType, setStatType] = useState<StatType>('duration')
     const [timeRange, setTimeRange] = useState<TimeRange>('1W')
@@ -59,7 +68,6 @@ export default function WorkoutStatsChart({ userId }: { userId: string }) {
     const chartRef = useRef<any>(null)
     const supabase = createClient()
 
-    // CSS-Variablen einmalig auslesen
     useEffect(() => {
         const root = document.documentElement
         const style = getComputedStyle(root)
@@ -199,9 +207,7 @@ export default function WorkoutStatsChart({ userId }: { userId: string }) {
 
         const { primary, bg, textSecondary } = cssVars
         const max = Math.max(...values, 1)
-        const unitMap: Record<StatType, string> = { duration: 'min', volume: 'kg', reps: 'reps' }
 
-        // Hilfsfunktion: hex → rgba mit Opacity
         function hexAlpha(hex: string, alpha: number): string {
             const h = hex.replace('#', '')
             const r = parseInt(h.substring(0, 2), 16)
@@ -237,7 +243,12 @@ export default function WorkoutStatsChart({ userId }: { userId: string }) {
                         borderColor: hexAlpha(primary, 0.3),
                         borderWidth: 1,
                         callbacks: {
-                            label: (ctx: any) => `${ctx.parsed.y} ${unitMap[statType]}`
+                            // FIX: tooltip shows "1hr 32min" instead of "92 min"
+                            label: (ctx: any) => {
+                                if (statType === 'duration') return formatMinutes(ctx.parsed.y)
+                                if (statType === 'volume') return `${ctx.parsed.y} kg`
+                                return `${ctx.parsed.y} reps`
+                            }
                         }
                     }
                 },
@@ -261,9 +272,10 @@ export default function WorkoutStatsChart({ userId }: { userId: string }) {
                             color: hexAlpha(textSecondary, 0.5),
                             font: { size: 10 },
                             maxTicksLimit: 4,
+                            // FIX: y-axis ticks show "1hr 30min" instead of "90m"
                             callback: (v: any) => {
+                                if (statType === 'duration') return formatMinutes(v)
                                 if (statType === 'volume' && v >= 1000) return `${(v / 1000).toFixed(1)}k`
-                                if (statType === 'duration') return `${v}m`
                                 return v
                             }
                         }
@@ -276,7 +288,6 @@ export default function WorkoutStatsChart({ userId }: { userId: string }) {
     return (
         <div className="glass" style={{ padding: 'var(--spacing-md)' }}>
 
-            {/* Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--spacing-lg)' }}>
                 <h2 style={{ fontWeight: '600', fontSize: 'var(--font-size-md)' }}>Statistics</h2>
                 <div style={{ display: 'flex', gap: '4px' }}>
@@ -303,7 +314,6 @@ export default function WorkoutStatsChart({ userId }: { userId: string }) {
                 </div>
             </div>
 
-            {/* Chart */}
             <div style={{ position: 'relative', width: '100%', height: '180px', marginBottom: '8px' }}>
                 {loading ? (
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'var(--color-text-secondary)', fontSize: 'var(--font-size-sm)' }}>
@@ -318,7 +328,6 @@ export default function WorkoutStatsChart({ userId }: { userId: string }) {
                 )}
             </div>
 
-            {/* Stat Buttons */}
             <div style={{
                 display: 'flex', gap: 'var(--spacing-sm)',
                 borderTop: '1px solid color-mix(in srgb, var(--color-text) 5%, transparent)',

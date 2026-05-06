@@ -123,7 +123,6 @@ export default function RoutinesClient({ routines, showWelcome = false }: { rout
         router.refresh()
     }
 
-    // ── Copy Routine ──────────────────────────────────────────────────────────
     async function copyRoutine(routine: RoutineWithCount) {
         setMenuOpen(null)
         setCopyingId(routine.id)
@@ -131,12 +130,11 @@ export default function RoutinesClient({ routines, showWelcome = false }: { rout
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) { setCopyingId(null); return }
 
-        // 1. Neue Routine anlegen
         const { data: newRoutine } = await supabase
             .from('routines')
             .insert({
                 user_id: user.id,
-                title: `${routine.title} (Kopie)`,
+                title: `${routine.title} (Copy)`,
                 description: routine.description ?? null,
             })
             .select()
@@ -144,14 +142,12 @@ export default function RoutinesClient({ routines, showWelcome = false }: { rout
 
         if (!newRoutine) { setCopyingId(null); return }
 
-        // 2. Alle Exercises + Sets der Original-Routine laden
         const { data: exercises } = await supabase
             .from('routine_exercises')
             .select(`*, routine_sets(*)`)
             .eq('routine_id', routine.id)
             .order('position')
 
-        // 3. Exercises + Sets in die neue Routine kopieren
         if (exercises && exercises.length > 0) {
             for (const ex of exercises) {
                 const { data: newEx } = await supabase
@@ -210,6 +206,14 @@ export default function RoutinesClient({ routines, showWelcome = false }: { rout
                 />
             )}
 
+            {/* Close menu on outside click */}
+            {menuOpen && (
+                <div
+                    style={{ position: 'fixed', inset: 0, zIndex: 5 }}
+                    onClick={() => setMenuOpen(null)}
+                />
+            )}
+
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--spacing-lg)' }}>
                 <h1 style={{ fontSize: 'var(--font-size-xl)', fontWeight: '700' }}>Routines</h1>
             </div>
@@ -230,7 +234,20 @@ export default function RoutinesClient({ routines, showWelcome = false }: { rout
                 )}
 
                 {routines.map(routine => (
-                    <div key={routine.id} className="glass" style={{ padding: 'var(--spacing-md)', position: 'relative', cursor: 'pointer', opacity: copyingId === routine.id ? 0.6 : 1, transition: 'opacity 0.2s' }}>
+                    <div
+                        key={routine.id}
+                        className="glass"
+                        style={{
+                            padding: 'var(--spacing-md)',
+                            position: 'relative',
+                            cursor: 'pointer',
+                            opacity: copyingId === routine.id ? 0.6 : 1,
+                            transition: 'opacity 0.2s',
+                            // FIX: allow dropdown to overflow card bounds + lift above siblings when open
+                            overflow: 'visible',
+                            zIndex: menuOpen === routine.id ? 10 : 1,
+                        }}
+                    >
                         <button
                             onClick={e => { e.stopPropagation(); setMenuOpen(menuOpen === routine.id ? null : routine.id) }}
                             style={{ position: 'absolute', top: 'var(--spacing-md)', right: 'var(--spacing-md)', background: 'none', border: 'none', color: 'var(--color-text-secondary)', fontSize: '18px', padding: '4px', lineHeight: 1 }}
@@ -239,7 +256,18 @@ export default function RoutinesClient({ routines, showWelcome = false }: { rout
                         </button>
 
                         {menuOpen === routine.id && (
-                            <div style={{ position: 'absolute', top: '40px', right: 'var(--spacing-md)', background: 'var(--color-card)', border: '1px solid color-mix(in srgb, var(--color-primary) 20%, transparent)', borderRadius: 'var(--radius-main)', overflow: 'hidden', zIndex: 10, minWidth: '160px', boxShadow: 'var(--shadow-card)' }}>
+                            <div style={{
+                                position: 'absolute',
+                                top: '40px',
+                                right: 'var(--spacing-md)',
+                                background: 'var(--color-card)',
+                                border: '1px solid color-mix(in srgb, var(--color-primary) 20%, transparent)',
+                                borderRadius: 'var(--radius-main)',
+                                overflow: 'hidden',
+                                zIndex: 20,
+                                minWidth: '160px',
+                                boxShadow: 'var(--shadow-card)',
+                            }}>
                                 <button
                                     onClick={() => { router.push(`/routines/${routine.id}/edit`); setMenuOpen(null) }}
                                     style={menuItemStyle}
@@ -286,10 +314,10 @@ export default function RoutinesClient({ routines, showWelcome = false }: { rout
                     <div onClick={e => e.stopPropagation()} className="glass" style={{ width: '100%', padding: 'var(--spacing-lg)', borderBottomLeftRadius: 0, borderBottomRightRadius: 0, display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
                         <h2 style={{ fontWeight: '600', fontSize: 'var(--font-size-lg)' }}>New Routine</h2>
                         <div style={{ borderBottom: '1px solid color-mix(in srgb, var(--color-primary) 30%, transparent)', paddingBottom: 'var(--spacing-sm)' }}>
-                            <input placeholder="Routine title" value={newTitle} onChange={e => setNewTitle(e.target.value)} autoFocus style={{ fontSize: 'var(--font-size-md)' }} />
+                            <input placeholder="Routine title" value={newTitle} onChange={e => setNewTitle(e.target.value)} autoFocus style={{ fontSize: '16px' }} />
                         </div>
                         <div style={{ borderBottom: '1px solid color-mix(in srgb, var(--color-primary) 30%, transparent)', paddingBottom: 'var(--spacing-sm)' }}>
-                            <input placeholder="Description (optional)" value={newDesc} onChange={e => setNewDesc(e.target.value)} />
+                            <input placeholder="Description (optional)" value={newDesc} onChange={e => setNewDesc(e.target.value)} style={{ fontSize: '16px' }} />
                         </div>
                         <div style={{ display: 'flex', gap: 'var(--spacing-sm)' }}>
                             <button onClick={() => setShowNewModal(false)} style={{ flex: 1, padding: 'var(--spacing-md)', background: 'color-mix(in srgb, var(--color-text) 5%, transparent)', border: '1px solid color-mix(in srgb, var(--color-text) 10%, transparent)', borderRadius: 'var(--radius-full)', color: 'var(--color-text-secondary)', fontWeight: '500' }}>Cancel</button>
