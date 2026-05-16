@@ -29,7 +29,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <meta name="theme-color" content="#09090F" />
         <link rel="apple-touch-icon" sizes="192x192" href="/icon-dark-192.png" />
         <link rel="apple-touch-icon" sizes="512x512" href="/icon-dark-512.png" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
       </head>
       <body>
         <ThemeProvider scheme="obsidian" />

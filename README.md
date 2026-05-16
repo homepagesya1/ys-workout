@@ -169,4 +169,5 @@ Made with 🖤 by Yannick Salm
 
 </div>
 
-Bug: custom exercises werden nicht in filter mit einbezogen!
+to do: share function to add to insta story or smth, templates like strava!
+löschen von coach session. active session show in coach tab (not start session sondern continue session in green)

@@ -2,54 +2,23 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
+import { useLang } from '@/lib/LanguageContext'
 
 interface Props {
   onClose: () => void
 }
 
-const steps = [
-  {
-    icon: '✅',
-    title: 'Account erstellt!',
-    desc: 'Willkommen bei YS.Workout. Dein Account wurde erfolgreich registriert.',
-  },
-  {
-    icon: '📲',
-    title: 'App installieren',
-    desc: 'Füge YS.Workout zum Homescreen hinzu — kein App Store nötig.',
-    extra: (
-      <div style={{
-        background: 'rgba(151,125,255,0.08)',
-        border: '1px solid rgba(151,125,255,0.2)',
-        borderRadius: 'var(--radius-main)',
-        padding: 'var(--spacing-md)',
-        fontSize: 'var(--font-size-sm)',
-        color: 'var(--color-text-secondary)',
-        textAlign: 'left',
-        lineHeight: '1.7',
-      }}>
-        <strong style={{ color: 'var(--color-text)', display: 'block', marginBottom: '6px' }}>🍎 iPhone (Safari)</strong>
-        Teilen <span style={{ color: 'var(--color-primary)' }}>⬆</span> → <em>„Zum Home-Bildschirm"</em>
-        <br /><br />
-        <strong style={{ color: 'var(--color-text)', display: 'block', marginBottom: '6px' }}>🤖 Android (Chrome)</strong>
-        Menü <span style={{ color: 'var(--color-primary)' }}>⋮</span> → <em>„Zum Startbildschirm"</em>
-        <br /><br />
-        <Link href="/help" style={{ color: 'var(--color-primary)', fontSize: 'var(--font-size-sm)', textDecoration: 'none', fontWeight: '500' }}>
-          Ausführliche Anleitung →
-        </Link>
-      </div>
-    ),
-  },
-  {
-    icon: '💪',
-    title: 'Bereit!',
-    desc: 'Jetzt kannst du dich einloggen und mit dem Tracken starten.',
-  },
-]
-
 export default function WelcomePopup({ onClose }: Props) {
   const router = useRouter()
+  const { tr } = useLang()
+  const w = tr.auth.welcome
+
+  const steps = [
+    { icon: '✅', title: w.step1Title, desc: w.step1Body },
+    { icon: '📲', title: w.step2Title, desc: w.step2Body },
+    { icon: '💪', title: w.step3Title, desc: w.step3Body },
+  ]
+
   const [step, setStep] = useState(0)
   const isLast = step === steps.length - 1
   const current = steps[step]
@@ -101,7 +70,6 @@ export default function WelcomePopup({ onClose }: Props) {
               {current.desc}
             </p>
           </div>
-          {'extra' in current && current.extra}
         </div>
 
         {/* Buttons */}
@@ -112,7 +80,7 @@ export default function WelcomePopup({ onClose }: Props) {
             border: 'none', borderRadius: 'var(--radius-full)',
             fontSize: 'var(--font-size-md)', fontWeight: '600', cursor: 'pointer',
           }}>
-            {isLast ? 'Zum Login' : 'Weiter'}
+            {isLast ? w.toLogin : w.next}
           </button>
           {!isLast && (
             <button onClick={() => { onClose(); router.push('/login') }} style={{
@@ -121,7 +89,7 @@ export default function WelcomePopup({ onClose }: Props) {
               color: 'var(--color-text-secondary)',
               fontSize: 'var(--font-size-sm)', cursor: 'pointer',
             }}>
-              Überspringen
+              {w.skip}
             </button>
           )}
         </div>

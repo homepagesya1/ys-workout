@@ -93,6 +93,15 @@ textarea {
   width: 100%;
 }
 
+/* Prevent iOS Safari auto-zoom on input focus (triggers when font-size < 16px) */
+@supports (-webkit-touch-callout: none) {
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+
 input::placeholder,
 textarea::placeholder {
   color: var(--color-text-secondary);

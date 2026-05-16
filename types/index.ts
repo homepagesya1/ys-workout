@@ -1,6 +1,9 @@
 export type ExerciseSource = 'exercisedb' | 'custom'
 export type WorkoutStatus = 'active' | 'paused' | 'finished' | 'deleted'
 export type PRType = 'max_weight' | 'max_reps' | 'max_duration' | 'max_distance'
+export type CoachLang = 'en' | 'de'
+export type UserRole = 'user' | 'trainer'
+export type WorkoutSource = 'own' | 'coach'
 export type ExerciseTypeName =
   | 'Weight & Reps'
   | 'Bodyweight Reps'
@@ -36,6 +39,9 @@ export interface Profile {
   display_name: string
   avatar_url: string | null
   is_approved: boolean
+  role?: UserRole
+  has_coach?: boolean
+  coach_lang?: CoachLang
   created_at: string
   updated_at: string
 }
@@ -60,6 +66,10 @@ export interface WorkoutSession {
   duration_seconds: number | null
   total_volume_kg: number | null
   total_sets: number | null
+  source?: WorkoutSource
+  plan_id?: string | null
+  exercises_added?: string[]
+  exercises_removed?: string[]
   created_at: string
   updated_at: string
 }
@@ -113,4 +123,53 @@ export interface ExerciseNote {
   exercise_id: string
   note: string
   updated_at: string
+}
+
+// ─── Coach / Trainer ─────────────────────────────────────────────────────────
+
+export interface TrainerClient {
+  id: string
+  trainer_id: string
+  client_id: string
+  status: 'pending' | 'active'
+  created_at: string
+  profiles?: { display_name: string; email: string; avatar_url: string | null }
+}
+
+export interface ClientFolder {
+  id: string
+  trainer_id: string
+  client_id: string
+  name: string
+  created_at: string
+}
+
+export interface TrainerPlanExercise {
+  id: string
+  exerciseId: string
+  name: string
+  source: ExerciseSource
+  sets: number
+  reps: number
+  weight: number | null
+  notes: string
+}
+
+export interface TrainingPlan {
+  id: string
+  trainer_id: string
+  folder_id: string
+  name: string
+  exercises: TrainerPlanExercise[]
+  created_at: string
+  updated_at: string
+  client_folders?: ClientFolder
+}
+
+export interface PlanShare {
+  id: string
+  plan_id: string
+  client_id: string
+  shared_at: string
+  training_plans?: TrainingPlan & { client_folders?: ClientFolder }
 }

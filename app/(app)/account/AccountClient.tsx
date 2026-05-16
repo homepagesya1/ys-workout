@@ -80,6 +80,18 @@ export default function AccountClient({ profile, userId, stats }: Props) {
                 Color Scheme
               </button>
               <button
+                onClick={() => { setMenuOpen(false); router.push('/account/settings') }}
+                style={{
+                  width: '100%', padding: 'var(--spacing-md)',
+                  background: 'none', border: 'none',
+                  color: 'var(--color-text)', textAlign: 'left',
+                  fontSize: 'var(--font-size-base)', fontWeight: '500',
+                  borderBottom: '1px solid rgba(255,255,255,0.05)',
+                }}
+              >
+                Settings
+              </button>
+              <button
                 onClick={handleLogout}
                 style={{
                   width: '100%', padding: 'var(--spacing-md)',

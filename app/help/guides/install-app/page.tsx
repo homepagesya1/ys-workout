@@ -35,8 +35,8 @@ export default function InstallAppPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-md)', marginBottom: 'var(--spacing-xl)' }}>
           <button onClick={() => router.back()} style={{ background: 'none', border: 'none', color: 'var(--color-primary)', fontSize: '22px', cursor: 'pointer', lineHeight: 1, padding: '4px', flexShrink: 0 }}>‹</button>
           <div>
-            <h1 style={{ fontSize: 'var(--font-size-xl)', fontWeight: '700' }}>{meta.icon} {meta.title}</h1>
-            <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)', marginTop: '2px' }}>{meta.description}</p>
+            <h1 style={{ fontSize: 'var(--font-size-xl)', fontWeight: '700' }}>{meta.icon} {ins.title}</h1>
+            <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)', marginTop: '2px' }}>{ins.description}</p>
           </div>
         </div>
  

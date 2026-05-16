@@ -52,6 +52,8 @@ export interface Translations {
   }
   help: { title: string; subtitle: string; back: string }
   install: {
+    title: string
+    description: string
     back: string
     ios: { label: string; steps: { title: string; description: string }[] }
     android: { label: string; steps: { title: string; description: string }[] }
@@ -106,6 +108,52 @@ export interface Translations {
       rights: { title: string; body: string }
     }
   }
+  auth: {
+    register: {
+      title: string
+      subtitle: string
+      googleBtn: string
+      orSeparator: string
+      emailLabel: string
+      passwordLabel: string
+      passwordPlaceholder: string
+      confirmLabel: string
+      confirmPlaceholder: string
+      submitBtn: string
+      loading: string
+      errorMismatch: string
+      errorTooShort: string
+      hasAccount: string
+      loginLink: string
+      emailSuccessTitle: string
+      emailSuccessBody: string
+      emailSuccessBtn: string
+    }
+    login: {
+      subtitle: string
+      googleBtn: string
+      orSeparator: string
+      emailLabel: string
+      passwordLabel: string
+      submitBtn: string
+      loading: string
+      errorMsg: string
+      notApproved: string
+      noAccount: string
+      registerLink: string
+    }
+    welcome: {
+      step1Title: string
+      step1Body: string
+      step2Title: string
+      step2Body: string
+      step3Title: string
+      step3Body: string
+      next: string
+      skip: string
+      toLogin: string
+    }
+  }
 }
 
 export const t: Record<Lang, Translations> = {
@@ -151,6 +199,8 @@ export const t: Record<Lang, Translations> = {
     },
     help: { title: 'Hilfe', subtitle: 'YS.Workout — Anleitungen & Tipps', back: '← Zurück' },
     install: {
+      title: 'App installieren',
+      description: 'Füge YS.Workout direkt zu deinem Homescreen hinzu — auf iPhone und Android, ohne App Store.',
       back: '← Zurück zur Hilfe',
       ios: {
         label: '🍎 iPhone (iOS)',
@@ -249,6 +299,52 @@ export const t: Record<Lang, Translations> = {
         },
       },
     },
+    auth: {
+      register: {
+        title: 'YS.Workout',
+        subtitle: 'Account erstellen',
+        googleBtn: 'Mit Google registrieren',
+        orSeparator: 'oder',
+        emailLabel: 'E-Mail',
+        passwordLabel: 'Passwort',
+        passwordPlaceholder: 'min. 8 Zeichen',
+        confirmLabel: 'Passwort bestätigen',
+        confirmPlaceholder: '••••••••',
+        submitBtn: 'Registrieren',
+        loading: 'Registrieren...',
+        errorMismatch: 'Passwörter stimmen nicht überein',
+        errorTooShort: 'Passwort muss mindestens 8 Zeichen haben',
+        hasAccount: 'Bereits ein Account?',
+        loginLink: 'Login',
+        emailSuccessTitle: 'Account erstellt!',
+        emailSuccessBody: 'Bestätige zuerst deine E-Mail — dann kannst du dich einloggen.',
+        emailSuccessBtn: 'Zum Login',
+      },
+      login: {
+        subtitle: 'Melde dich an',
+        googleBtn: 'Mit Google anmelden',
+        orSeparator: 'oder',
+        emailLabel: 'E-Mail',
+        passwordLabel: 'Passwort',
+        submitBtn: 'Login',
+        loading: 'Einloggen...',
+        errorMsg: 'Ungültige E-Mail oder Passwort',
+        notApproved: 'Dein Account ist noch nicht freigeschaltet.',
+        noAccount: 'Noch kein Account?',
+        registerLink: 'Registrieren',
+      },
+      welcome: {
+        step1Title: 'Willkommen!',
+        step1Body: 'Schön, dass du dabei bist. Dein Account ist bereit — jetzt kannst du loslegen.',
+        step2Title: 'App installieren',
+        step2Body: 'Die Anleitung zum Hinzufügen der App auf deinen Homescreen findest du unter /help.',
+        step3Title: 'Bereit!',
+        step3Body: 'Erstelle deinen ersten Trainingsplan und fang an zu tracken.',
+        next: 'Weiter',
+        skip: 'Überspringen',
+        toLogin: 'Starten!',
+      },
+    },
   },
 
   en: {
@@ -293,6 +389,8 @@ export const t: Record<Lang, Translations> = {
     },
     help: { title: 'Help', subtitle: 'YS.Workout — Guides & Tips', back: '← Back' },
     install: {
+      title: 'Install the App',
+      description: 'Add YS.Workout to your home screen — on iPhone and Android, no App Store needed.',
       back: '← Back to Help',
       ios: {
         label: '🍎 iPhone (iOS)',
@@ -389,6 +487,52 @@ export const t: Record<Lang, Translations> = {
           title: 'Your Rights',
           body: 'You have the right to access your stored personal data, to correct inaccurate data, and to request deletion of your data. For all requests, contact me by email at yannicksalm07@gmail.com — I will handle your request as quickly as possible.',
         },
+      },
+    },
+    auth: {
+      register: {
+        title: 'YS.Workout',
+        subtitle: 'Create your account',
+        googleBtn: 'Register with Google',
+        orSeparator: 'or',
+        emailLabel: 'Email',
+        passwordLabel: 'Password',
+        passwordPlaceholder: 'min. 8 characters',
+        confirmLabel: 'Confirm password',
+        confirmPlaceholder: '••••••••',
+        submitBtn: 'Sign up',
+        loading: 'Signing up...',
+        errorMismatch: 'Passwords do not match',
+        errorTooShort: 'Password must be at least 8 characters',
+        hasAccount: 'Already have an account?',
+        loginLink: 'Log in',
+        emailSuccessTitle: 'Account created!',
+        emailSuccessBody: 'Please confirm your email first — then you can log in.',
+        emailSuccessBtn: 'Go to Login',
+      },
+      login: {
+        subtitle: 'Log in to your account',
+        googleBtn: 'Sign in with Google',
+        orSeparator: 'or',
+        emailLabel: 'Email',
+        passwordLabel: 'Password',
+        submitBtn: 'Log in',
+        loading: 'Logging in...',
+        errorMsg: 'Invalid email or password',
+        notApproved: 'Your account has not been approved yet.',
+        noAccount: 'No account yet?',
+        registerLink: 'Sign up',
+      },
+      welcome: {
+        step1Title: 'Welcome!',
+        step1Body: "Great to have you here. Your account is ready — let's get started.",
+        step2Title: 'Install the App',
+        step2Body: 'You can find the guide to add the app to your home screen at /help.',
+        step3Title: 'Ready!',
+        step3Body: 'Create your first training plan and start tracking.',
+        next: 'Next',
+        skip: 'Skip',
+        toLogin: 'Start!',
       },
     },
   },

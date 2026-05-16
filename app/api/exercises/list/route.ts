@@ -5,7 +5,7 @@ export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl
   const bodyPart = searchParams.get('bodyPart') ?? undefined
   const equipment = searchParams.get('equipment') ?? undefined
-  const offset = parseInt(searchParams.get('offset') ?? '0')
+  const offset = parseInt(searchParams.get('cursor') ?? searchParams.get('offset') ?? '0')
   const limit = 50
 
   try {

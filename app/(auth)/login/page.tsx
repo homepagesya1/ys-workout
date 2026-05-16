@@ -5,14 +5,13 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import WelcomePopup from '@/components/ui/WelcomePopup'
+import { useLang } from '@/lib/LanguageContext'
 
 function OAuthButton({
-  provider,
   label,
   icon,
   onClick,
 }: {
-  provider: string
   label: string
   icon: React.ReactNode
   onClick: () => void
@@ -48,6 +47,9 @@ function OAuthButton({
 
 export default function LoginPage() {
   const router = useRouter()
+  const { tr } = useLang()
+  const l = tr.auth.login
+
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -63,7 +65,7 @@ export default function LoginPage() {
     const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password })
 
     if (authError) {
-      setError('Ungültige E-Mail oder Passwort')
+      setError(l.errorMsg)
       setLoading(false)
       return
     }
@@ -76,7 +78,7 @@ export default function LoginPage() {
 
     if (profile?.is_approved === false) {
       await supabase.auth.signOut()
-      setError('Dein Account ist noch nicht freigeschaltet.')
+      setError(l.notApproved)
       setLoading(false)
       return
     }
@@ -143,7 +145,7 @@ export default function LoginPage() {
               </h1>
             </Link>
             <p style={{ color: 'var(--color-text-secondary)', marginTop: 'var(--spacing-xs)', fontSize: 'var(--font-size-sm)' }}>
-              Login to Record your Workout
+              {l.subtitle}
             </p>
           </div>
 
@@ -164,8 +166,7 @@ export default function LoginPage() {
             )}
 
             <OAuthButton
-              provider="google"
-              label="Mit Google anmelden"
+              label={l.googleBtn}
               onClick={() => handleOAuth('google')}
               icon={
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -179,21 +180,21 @@ export default function LoginPage() {
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
               <div style={{ flex: 1, height: '1px', background: 'rgba(151,125,255,0.2)' }} />
-              <span style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)' }}>oder</span>
+              <span style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)' }}>{l.orSeparator}</span>
               <div style={{ flex: 1, height: '1px', background: 'rgba(151,125,255,0.2)' }} />
             </div>
 
             <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
               <div style={{ borderBottom: '1px solid rgba(151,125,255,0.3)', paddingBottom: 'var(--spacing-sm)' }}>
                 <label style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)', display: 'block', marginBottom: '4px' }}>
-                  E-Mail
+                  {l.emailLabel}
                 </label>
                 <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="your@email.com" required autoComplete="email" />
               </div>
 
               <div style={{ borderBottom: '1px solid rgba(151,125,255,0.3)', paddingBottom: 'var(--spacing-sm)' }}>
                 <label style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)', display: 'block', marginBottom: '4px' }}>
-                  Password
+                  {l.passwordLabel}
                 </label>
                 <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" required autoComplete="current-password" />
               </div>
@@ -213,14 +214,14 @@ export default function LoginPage() {
                   cursor: loading ? 'not-allowed' : 'pointer',
                 }}
               >
-                {loading ? 'Logging in...' : 'Login'}
+                {loading ? l.loading : l.submitBtn}
               </button>
             </form>
 
             <p style={{ textAlign: 'center', fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)' }}>
-              Noch kein Account?{' '}
+              {l.noAccount}{' '}
               <Link href="/register" style={{ color: 'var(--color-primary)', textDecoration: 'none', fontWeight: '500' }}>
-                Registrieren
+                {l.registerLink}
               </Link>
             </p>
           </div>

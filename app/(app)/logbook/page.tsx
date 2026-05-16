@@ -53,10 +53,26 @@ export default async function LogBookPage() {
           >
             <div className="glass" style={{ padding: 'var(--spacing-md)', cursor: 'pointer', transition: 'opacity var(--transition)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div>
-                  <h2 style={{ fontWeight: '700', fontSize: 'var(--font-size-md)', marginBottom: 'var(--spacing-xs)' }}>
-                    {session.title}
-                  </h2>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)', marginBottom: 'var(--spacing-xs)', flexWrap: 'wrap' }}>
+                    <h2 style={{ fontWeight: '700', fontSize: 'var(--font-size-md)', margin: 0 }}>
+                      {session.title}
+                    </h2>
+                    {(session as any).source === 'coach' && (
+                      <span style={{
+                        fontSize: '10px', fontWeight: '600',
+                        color: 'var(--color-primary)',
+                        background: 'color-mix(in srgb, var(--color-primary) 15%, transparent)',
+                        border: '1px solid color-mix(in srgb, var(--color-primary) 30%, transparent)',
+                        borderRadius: '4px',
+                        padding: '2px 6px',
+                        lineHeight: '1.4',
+                        flexShrink: 0,
+                      }}>
+                        Coach
+                      </span>
+                    )}
+                  </div>
                   <div style={{ display: 'flex', gap: 'var(--spacing-md)', flexWrap: 'wrap' }}>
                     <span style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)' }}>
                       ⏱ {formatDuration(session.duration_seconds ?? 0)}
@@ -69,7 +85,7 @@ export default async function LogBookPage() {
                     </span>
                   </div>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px', flexShrink: 0 }}>
                   <span style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)', whiteSpace: 'nowrap' }}>
                     {formatDate(session.finished_at ?? session.created_at)}
                   </span>

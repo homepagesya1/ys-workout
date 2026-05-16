@@ -12,13 +12,17 @@ export default async function AppLayout({
   const { data: { user } } = await supabase.auth.getUser()
 
   let colorScheme = 'obsidian'
+  let role = 'user'
+  let hasCoach = false
   if (user) {
     const { data: profile } = await supabase
       .from('profiles')
-      .select('color_scheme')
+      .select('color_scheme, role, has_coach')
       .eq('id', user.id)
       .single()
     colorScheme = profile?.color_scheme ?? 'obsidian'
+    role = profile?.role ?? 'user'
+    hasCoach = profile?.has_coach ?? false
   }
 
   return (
@@ -32,7 +36,7 @@ export default async function AppLayout({
       <ThemeProvider scheme={colorScheme} />
       {children}
       <ActiveWorkoutBanner />
-      <NavBar />
+      <NavBar role={role} hasCoach={hasCoach} />
     </div>
   )
 }

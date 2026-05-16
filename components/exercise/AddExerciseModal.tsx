@@ -122,23 +122,23 @@ export default function AddExerciseModal({ onAdd, onClose }: Props) {
     const [previewEx,           setPreviewEx]           = useState<EDBExercise | null>(null)
     const listRef       = useRef<HTMLDivElement>(null)
     const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
+    const fetchingRef   = useRef(false)
 
-    // ── FIX: Custom Exercises aus Supabase laden ──
     useEffect(() => {
         const supabase = createClient()
         supabase
             .from('exercises')
-            .select('id, name')
+            .select('id, name, muscles!primary_muscle_id(name), equipment!equipment_id(name)')
             .eq('source', 'custom')
             .then(({ data }) => {
                 if (!data) return
-                setCustomExercises(data.map(e => ({
+                setCustomExercises(data.map((e: any) => ({
                     exerciseId: e.id,
                     name: e.name ?? 'Custom Exercise',
                     imageUrl: '',
-                    targetMuscles: [],
-                    bodyParts: [],
-                    equipments: [],
+                    targetMuscles: e.muscles?.name ? [e.muscles.name] : [],
+                    bodyParts: e.muscles?.name ? [e.muscles.name] : [],
+                    equipments: e.equipment?.name ? [e.equipment.name] : [],
                     source: 'custom',
                 })))
             })
@@ -152,6 +152,8 @@ export default function AddExerciseModal({ onAdd, onClose }: Props) {
     }, [])
 
     const loadExercises = useCallback(async (reset = false) => {
+        if (!reset && fetchingRef.current) return
+        fetchingRef.current = true
         if (reset) { setLoading(true); setExercises([]); setCursor(null) } else setLoadingMore(true)
         const params = new URLSearchParams()
         if (!reset && cursor) params.set('cursor', cursor)
@@ -160,11 +162,17 @@ export default function AddExerciseModal({ onAdd, onClose }: Props) {
         try {
             const res = await fetch(`/api/exercises/list?${params}`)
             const json = await res.json() as any
-            setExercises(prev => reset ? json.data : [...prev, ...json.data])
+            setExercises(prev => {
+                if (reset) return json.data
+                const seen = new Set(prev.map((e: EDBExercise) => e.exerciseId))
+                return [...prev, ...(json.data as EDBExercise[]).filter(e => !seen.has(e.exerciseId))]
+            })
             setHasMore(json.meta.hasNextPage)
             setCursor(json.meta.nextCursor ?? null)
         } catch {}
-        setLoading(false); setLoadingMore(false)
+        setLoading(false)
+        setLoadingMore(false)
+        fetchingRef.current = false
     }, [cursor, selectedBodyPart, selectedEquipment])
 
     useEffect(() => { loadExercises(true) }, [selectedBodyPart, selectedEquipment])
@@ -216,10 +224,10 @@ export default function AddExerciseModal({ onAdd, onClose }: Props) {
         onAdd(newEx)
     }
 
-    // ── FIX: Custom exercises immer vorne, auch beim Suchen ──
-    const filteredCustom = searchQuery
-        ? customExercises.filter(e => e.name.toLowerCase().includes(searchQuery.toLowerCase()))
-        : customExercises
+    let filteredCustom = customExercises
+    if (searchQuery) filteredCustom = filteredCustom.filter(e => e.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    if (selectedBodyPart) filteredCustom = filteredCustom.filter(e => e.targetMuscles.some(m => m.toLowerCase() === selectedBodyPart.toLowerCase()))
+    if (selectedEquipment) filteredCustom = filteredCustom.filter(e => e.equipments.some(eq => eq.toLowerCase() === selectedEquipment.toLowerCase()))
 
     const edbList = searchQuery ? searchResults : exercises
     const allDisplay = [...filteredCustom, ...edbList.filter(e => e.source !== 'custom')]
@@ -252,7 +260,7 @@ export default function AddExerciseModal({ onAdd, onClose }: Props) {
                     <div style={{ padding: 'var(--spacing-md)', paddingBottom: 'var(--spacing-sm)', borderBottom: '1px solid color-mix(in srgb, var(--color-text) 5%, transparent)' }}>
                         <div style={{ display: 'flex', background: 'color-mix(in srgb, var(--color-text) 7%, transparent)', borderRadius: 'var(--radius-full)', padding: '10px var(--spacing-md)', gap: 'var(--spacing-sm)', alignItems: 'center', border: '1px solid color-mix(in srgb, var(--color-primary) 15%, transparent)' }}>
                             <span style={{ color: 'var(--color-text-secondary)', fontSize: '16px' }}>🔍</span>
-                            <input placeholder="Search exercises..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} autoFocus style={{ fontSize: 'var(--font-size-base)', flex: 1 }} />
+                            <input placeholder="Search exercises..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} style={{ fontSize: 'var(--font-size-base)', flex: 1 }} />
                             {searchQuery && <button onClick={() => setSearchQuery('')} style={{ background: 'none', border: 'none', color: 'var(--color-text-secondary)', fontSize: '16px', padding: 0 }}>✕</button>}
                         </div>
                     </div>

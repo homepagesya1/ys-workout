@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { LandingHeader } from '@/components/LandingHeader'
 import { LandingFooter } from '@/components/LandingFooter'
 import { useLang } from '@/lib/LanguageContext'
-import { registry } from './_registry'
+import { getRegistry } from './_registry'
 
 export default function HelpPage() {
   const router = useRouter()
@@ -38,7 +38,7 @@ export default function HelpPage() {
 
           {/* Guide cards */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-sm)', marginBottom: 'var(--spacing-xl)' }}>
-            {registry.map(guide => (
+            {getRegistry(tr).map(guide => (
               <Link key={guide.href} href={guide.href} style={{ textDecoration: 'none' }}>
                 <div className="glass" style={{ padding: 'var(--spacing-md) var(--spacing-lg)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 'var(--spacing-md)', cursor: 'pointer', transition: 'border-color 0.2s ease' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-md)' }}>

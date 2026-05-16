@@ -6,9 +6,13 @@
 // ─────────────────────────────────────────────────────────────
 
 import { meta as installApp } from './guides/install-app/_meta'
+import type { Translations } from '@/lib/translations'
+
 // import { meta as neueAnleitung } from './guides/neue-anleitung/_meta'  ← Beispiel
 
-export const registry = [
-  installApp,
-  // neueAnleitung,  ← hier eintragen
-]
+export function getRegistry(tr: Translations) {
+  return [
+    { ...installApp, title: tr.install.title, description: tr.install.description },
+    // { ...neueAnleitung, title: tr.<section>.title, description: tr.<section>.description },
+  ]
+}

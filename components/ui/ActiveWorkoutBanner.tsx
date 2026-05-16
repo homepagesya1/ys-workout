@@ -18,20 +18,27 @@ export default function ActiveWorkoutBanner() {
 
       const { data } = await supabase
         .from('workout_sessions')
-        .select('id, title, started_at')
+        .select('id, title, started_at, source')
         .eq('user_id', user.id)
         .eq('status', 'active')
         .order('started_at', { ascending: false })
         .limit(1)
         .maybeSingle()
 
-      setActiveSession(data ?? null)
-      if (data) {
-        const start = new Date(data.started_at).getTime()
+      // Don't show banner for coach sessions — they have their own session page
+      const session = data?.source === 'coach' ? null : data
+      setActiveSession(session ?? null)
+      if (session) {
+        const start = new Date(session.started_at).getTime()
         setElapsed(Math.floor((Date.now() - start) / 1000))
       }
     }
     checkActive()
+
+    // Immediately clear banner when a coach workout finishes
+    function onCoachFinished() { setActiveSession(null) }
+    window.addEventListener('coach-workout-finished', onCoachFinished)
+    return () => window.removeEventListener('coach-workout-finished', onCoachFinished)
   }, [pathname])
 
   useEffect(() => {

@@ -17,7 +17,7 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
         name: "YS.Workout",
         short_name: "YS.Workout",
         description: "Track your workouts",
-        start_url: "/",
+        start_url: "/routines",
         display: "standalone",
         background_color: "#0a0a0a",
         theme_color: "#0a0a0a",

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
+import { useLang } from '@/lib/LanguageContext'
 
 function OAuthButton({ label, icon, onClick }: { label: string; icon: React.ReactNode; onClick: () => void }) {
   return (
@@ -28,6 +29,9 @@ const GoogleIcon = () => (
 )
 
 export default function RegisterPage() {
+  const { tr } = useLang()
+  const r = tr.auth.register
+
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
@@ -38,8 +42,8 @@ export default function RegisterPage() {
   async function handleRegister(e: React.FormEvent) {
     e.preventDefault()
     setError('')
-    if (password !== confirm) { setError('Passwörter stimmen nicht überein'); return }
-    if (password.length < 8) { setError('Passwort muss mindestens 8 Zeichen haben'); return }
+    if (password !== confirm) { setError(r.errorMismatch); return }
+    if (password.length < 8) { setError(r.errorTooShort); return }
     setLoading(true)
     const supabase = createClient()
     const { error: authError } = await supabase.auth.signUp({ email, password })
@@ -68,9 +72,9 @@ export default function RegisterPage() {
           textAlign: 'center', display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)',
         }}>
           <div style={{ fontSize: '48px' }}>✅</div>
-          <h2 style={{ color: 'var(--color-primary)', fontWeight: '600' }}>Account erstellt!</h2>
-          <p style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--font-size-sm)' }}>
-            Du kannst dich jetzt einloggen.
+          <h2 style={{ color: 'var(--color-primary)', fontWeight: '600' }}>{r.emailSuccessTitle}</h2>
+          <p style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--font-size-sm)', lineHeight: '1.6' }}>
+            {r.emailSuccessBody}
           </p>
           <Link href="/login" style={{
             padding: 'var(--spacing-md)',
@@ -81,7 +85,7 @@ export default function RegisterPage() {
             fontWeight: '600',
             fontSize: 'var(--font-size-md)',
           }}>
-            Zum Login
+            {r.emailSuccessBtn}
           </Link>
         </div>
       </main>
@@ -107,11 +111,11 @@ export default function RegisterPage() {
               onMouseOver={e => (e.currentTarget.style.opacity = '0.75')}
               onMouseOut={e => (e.currentTarget.style.opacity = '1')}
             >
-              YS.Workout
+              {r.title}
             </h1>
           </Link>
           <p style={{ color: 'var(--color-text-secondary)', marginTop: 'var(--spacing-xs)', fontSize: 'var(--font-size-sm)' }}>
-            Create your account
+            {r.subtitle}
           </p>
         </div>
         <div className="glass" style={{ padding: 'var(--spacing-lg)', display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
@@ -120,32 +124,32 @@ export default function RegisterPage() {
               {error}
             </div>
           )}
-          <OAuthButton label="Mit Google registrieren" icon={<GoogleIcon />} onClick={() => handleOAuth('google')} />
+          <OAuthButton label={r.googleBtn} icon={<GoogleIcon />} onClick={() => handleOAuth('google')} />
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
             <div style={{ flex: 1, height: '1px', background: 'rgba(151,125,255,0.2)' }} />
-            <span style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)' }}>oder</span>
+            <span style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)' }}>{r.orSeparator}</span>
             <div style={{ flex: 1, height: '1px', background: 'rgba(151,125,255,0.2)' }} />
           </div>
           <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
             <div style={{ borderBottom: '1px solid rgba(151,125,255,0.3)', paddingBottom: 'var(--spacing-sm)' }}>
-              <label style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)', display: 'block', marginBottom: '4px' }}>E-Mail</label>
+              <label style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)', display: 'block', marginBottom: '4px' }}>{r.emailLabel}</label>
               <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="your@email.com" required autoComplete="email" />
             </div>
             <div style={{ borderBottom: '1px solid rgba(151,125,255,0.3)', paddingBottom: 'var(--spacing-sm)' }}>
-              <label style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)', display: 'block', marginBottom: '4px' }}>Password</label>
-              <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="min. 8 Zeichen" required autoComplete="new-password" />
+              <label style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)', display: 'block', marginBottom: '4px' }}>{r.passwordLabel}</label>
+              <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder={r.passwordPlaceholder} required autoComplete="new-password" />
             </div>
             <div style={{ borderBottom: '1px solid rgba(151,125,255,0.3)', paddingBottom: 'var(--spacing-sm)' }}>
-              <label style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)', display: 'block', marginBottom: '4px' }}>Passwort bestätigen</label>
-              <input type="password" value={confirm} onChange={e => setConfirm(e.target.value)} placeholder="••••••••" required autoComplete="new-password" />
+              <label style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)', display: 'block', marginBottom: '4px' }}>{r.confirmLabel}</label>
+              <input type="password" value={confirm} onChange={e => setConfirm(e.target.value)} placeholder={r.confirmPlaceholder} required autoComplete="new-password" />
             </div>
             <button type="submit" disabled={loading} style={{ width: '100%', padding: 'var(--spacing-md)', background: loading ? 'rgba(151,125,255,0.4)' : 'var(--color-primary)', color: 'var(--color-text)', border: 'none', borderRadius: 'var(--radius-full)', fontSize: 'var(--font-size-md)', fontWeight: '600', cursor: loading ? 'not-allowed' : 'pointer' }}>
-              {loading ? 'Registrieren...' : 'Registrieren'}
+              {loading ? r.loading : r.submitBtn}
             </button>
           </form>
           <p style={{ textAlign: 'center', fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)' }}>
-            Bereits ein Account?{' '}
-            <Link href="/login" style={{ color: 'var(--color-primary)', textDecoration: 'none', fontWeight: '500' }}>Login</Link>
+            {r.hasAccount}{' '}
+            <Link href="/login" style={{ color: 'var(--color-primary)', textDecoration: 'none', fontWeight: '500' }}>{r.loginLink}</Link>
           </p>
         </div>
       </div>

@@ -11,6 +11,7 @@ interface Props {
   workoutExercises: any[]
   sets: any[]
   prs: any[]
+  readOnly?: boolean
 }
 
 function formatDuration(seconds: number) {
@@ -30,9 +31,10 @@ function formatDate(dateStr: string) {
 
 // ─── Three-dot menu ───────────────────────────────────────────────────────────
 
-function WorkoutOptionsMenu({ sessionId, currentTitle, onRenamed }: {
+function WorkoutOptionsMenu({ sessionId, currentTitle, isCoachSession, onRenamed }: {
   sessionId: string
   currentTitle: string
+  isCoachSession: boolean
   onRenamed: (newTitle: string) => void
 }) {
   const [open,       setOpen]      = useState(false)
@@ -178,10 +180,12 @@ function WorkoutOptionsMenu({ sessionId, currentTitle, onRenamed }: {
                 Umbenennen
               </button>
 
-              <button onClick={handleSaveAsRoutine} disabled={loading || savedRoutine} style={{ width:'100%', display:'flex', alignItems:'center', gap:'10px', padding:'9px 10px', borderRadius:'8px', border:'none', background:savedRoutine?'rgba(46,213,115,0.1)':'transparent', cursor:'pointer', fontSize:'14px', color:savedRoutine?'#2ED573':'var(--color-text-primary)', textAlign:'left' }}>
-                <BookmarkIcon />
-                {savedRoutine ? 'Routine gespeichert ✓' : 'Als Routine speichern'}
-              </button>
+              {!isCoachSession && (
+                <button onClick={handleSaveAsRoutine} disabled={loading || savedRoutine} style={{ width:'100%', display:'flex', alignItems:'center', gap:'10px', padding:'9px 10px', borderRadius:'8px', border:'none', background:savedRoutine?'rgba(46,213,115,0.1)':'transparent', cursor:'pointer', fontSize:'14px', color:savedRoutine?'#2ED573':'var(--color-text-primary)', textAlign:'left' }}>
+                  <BookmarkIcon />
+                  {savedRoutine ? 'Routine gespeichert ✓' : 'Als Routine speichern'}
+                </button>
+              )}
               <button onClick={handleStartWorkout} disabled={loading} style={{ width:'100%', display:'flex', alignItems:'center', gap:'10px', padding:'9px 10px', borderRadius:'8px', border:'none', background:'transparent', cursor:'pointer', fontSize:'14px', color:'var(--color-text-primary)', textAlign:'left' }}>
                 <PlayIcon />
                 Workout starten
@@ -275,10 +279,11 @@ function PlayIcon() {
 
 // ─── Main Component ────────────────────────────────────────────────────────────
 
-export default function LogbookDetailClient({ session, workoutExercises, sets, prs }: Props) {
+export default function LogbookDetailClient({ session, workoutExercises, sets, prs, readOnly }: Props) {
   const router = useRouter()
   const [exercises, setExercises] = useState<any[]>(workoutExercises ?? [])
   const [title, setTitle] = useState(session?.title ?? '')
+  const isCoachSession = session?.source === 'coach'
 
   useEffect(() => {
     if (!workoutExercises || workoutExercises.length === 0) return
@@ -306,15 +311,32 @@ export default function LogbookDetailClient({ session, workoutExercises, sets, p
         >
           ←
         </button>
-        <span style={{ fontWeight: '600', fontSize: 'var(--font-size-md)' }}>
-          {title}
-        </span>
-        {/* ← War vorher: <div style={{ width: '32px' }} /> */}
-        <WorkoutOptionsMenu
-          sessionId={session.id}
-          currentTitle={title}
-          onRenamed={setTitle}
-        />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ fontWeight: '600', fontSize: 'var(--font-size-md)' }}>
+            {title}
+          </span>
+          {isCoachSession && (
+            <span style={{
+              fontSize: '10px', fontWeight: '600',
+              color: 'var(--color-primary)',
+              background: 'color-mix(in srgb, var(--color-primary) 15%, transparent)',
+              border: '1px solid color-mix(in srgb, var(--color-primary) 30%, transparent)',
+              borderRadius: '4px',
+              padding: '2px 6px',
+            }}>
+              Coach
+            </span>
+          )}
+        </div>
+        {readOnly
+          ? <div style={{ width: '32px' }} />
+          : <WorkoutOptionsMenu
+              sessionId={session.id}
+              currentTitle={title}
+              isCoachSession={isCoachSession}
+              onRenamed={setTitle}
+            />
+        }
       </div>
 
       <div style={{ padding: 'var(--spacing-md)', display: 'flex', flexDirection: 'column', gap: 'var(--spacing-lg)' }}>
