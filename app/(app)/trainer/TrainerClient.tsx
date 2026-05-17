@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation'
 
 import { createClient } from '@/lib/supabase/client'
 import { useCoachLang } from '@/lib/coachLang'
-import type { TrainerClient as TrainerClientType } from '@/types'
 
 interface Props {
   trainerId: string
@@ -35,10 +34,58 @@ export default function TrainerClientPage({ trainerId, clients: initialClients }
 
   const [clients, setClients] = useState<any[]>(initialClients)
   const [showAdd, setShowAdd] = useState(false)
+  const [clientMenu, setClientMenu] = useState<string | null>(null)
+  const [confirmDeleteClient, setConfirmDeleteClient] = useState<any | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   useEffect(() => { setClients(initialClients) }, [initialClients])
   const [email, setEmail] = useState('')
   const [addStatus, setAddStatus] = useState<'idle' | 'loading' | 'success' | 'not_found' | 'already_linked'>('idle')
+
+  async function deleteClient(client: any) {
+    setDeleting(true)
+    const cid = client.client_id
+    // Get folders for this trainer+client
+    const { data: folders } = await supabase
+      .from('client_folders')
+      .select('id')
+      .eq('trainer_id', trainerId)
+      .eq('client_id', cid)
+    const folderIds = (folders ?? []).map((f: any) => f.id)
+    if (folderIds.length > 0) {
+      // Get plans in those folders
+      const { data: plans } = await supabase
+        .from('training_plans')
+        .select('id')
+        .in('folder_id', folderIds)
+      const planIds = (plans ?? []).map((p: any) => p.id)
+      if (planIds.length > 0) {
+        await supabase.from('plan_shares').delete().in('plan_id', planIds)
+        await supabase.from('training_plans').delete().in('id', planIds)
+      }
+      await supabase.from('client_folders').delete().in('id', folderIds)
+    }
+    await supabase.from('trainer_clients').delete().eq('id', client.id)
+    await fetch('/api/trainer/set-coach-status', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ clientId: cid, hasCoach: false }),
+    })
+    setClients(prev => prev.filter(c => c.id !== client.id))
+    setConfirmDeleteClient(null)
+    setDeleting(false)
+    router.refresh()
+  }
+
+  async function addClientBack(client: any) {
+    await fetch('/api/trainer/add-client-back', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ clientRowId: client.id, clientId: client.client_id }),
+    })
+    setClients(prev => prev.map(c => c.id === client.id ? { ...c, status: 'active' } : c))
+    setClientMenu(null)
+  }
 
   async function handleAddClient() {
     if (!email.trim()) return
@@ -68,11 +115,11 @@ export default function TrainerClientPage({ trainerId, clients: initialClients }
       .single()
 
     if (newClient) {
-      // Mark the client profile with has_coach = true
-      await supabase
-        .from('profiles')
-        .update({ has_coach: true })
-        .eq('id', targetProfile.id)
+      await fetch('/api/trainer/set-coach-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ clientId: targetProfile.id, hasCoach: true }),
+      })
 
       setClients(prev => [...prev, {
         ...newClient,
@@ -89,8 +136,20 @@ export default function TrainerClientPage({ trainerId, clients: initialClients }
     }
   }
 
+  function statusColor(status: string) {
+    if (status === 'active') return { color: 'var(--color-success)', bg: 'color-mix(in srgb, var(--color-success) 15%, transparent)', border: 'color-mix(in srgb, var(--color-success) 30%, transparent)' }
+    if (status === 'disconnected') return { color: 'var(--color-danger)', bg: 'color-mix(in srgb, var(--color-danger) 15%, transparent)', border: 'color-mix(in srgb, var(--color-danger) 30%, transparent)' }
+    return { color: 'var(--color-text-secondary)', bg: 'rgba(255,255,255,0.06)', border: 'rgba(255,255,255,0.1)' }
+  }
+
+  function statusLabel(status: string) {
+    if (status === 'active') return t('status_active')
+    if (status === 'disconnected') return t('status_disconnected')
+    return t('status_pending')
+  }
+
   return (
-    <main style={{ padding: 'var(--spacing-md)', paddingTop: 'var(--spacing-xl)', paddingBottom: '100px' }}>
+    <main style={{ padding: 'var(--spacing-md)', paddingTop: 'var(--spacing-xl)', paddingBottom: '100px' }} onClick={() => setClientMenu(null)}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--spacing-lg)' }}>
         <h1 style={{ fontSize: 'var(--font-size-xl)', fontWeight: '700' }}>
           {t('clients_title')}
@@ -194,17 +253,56 @@ export default function TrainerClientPage({ trainerId, clients: initialClients }
                       {profile?.email}
                     </div>
                   </div>
-                  <span style={{
-                    fontSize: '11px', fontWeight: '600', padding: '3px 8px',
-                    borderRadius: '4px',
-                    color: client.status === 'active' ? 'var(--color-success)' : 'var(--color-text-secondary)',
-                    background: client.status === 'active'
-                      ? 'color-mix(in srgb, var(--color-success) 15%, transparent)'
-                      : 'rgba(255,255,255,0.06)',
-                    border: `1px solid ${client.status === 'active' ? 'color-mix(in srgb, var(--color-success) 30%, transparent)' : 'rgba(255,255,255,0.1)'}`,
-                  }}>
-                    {client.status === 'active' ? t('status_active') : t('status_pending')}
-                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+                    <span style={{
+                      fontSize: '11px', fontWeight: '600', padding: '3px 8px',
+                      borderRadius: '4px',
+                      color: statusColor(client.status).color,
+                      background: statusColor(client.status).bg,
+                      border: `1px solid ${statusColor(client.status).border}`,
+                    }}>
+                      {statusLabel(client.status)}
+                    </span>
+                    {/* 3-dot menu */}
+                    <div style={{ position: 'relative' }}>
+                      <button
+                        onClick={e => { e.stopPropagation(); setClientMenu(clientMenu === client.id ? null : client.id) }}
+                        style={{ background: 'none', border: 'none', color: 'var(--color-text-secondary)', cursor: 'pointer', padding: '2px 6px', fontSize: '18px', lineHeight: 1 }}
+                      >
+                        ⋯
+                      </button>
+                      {clientMenu === client.id && (
+                        <>
+                          <div style={{ position: 'fixed', inset: 0, zIndex: 9 }} onClick={e => { e.stopPropagation(); setClientMenu(null) }} />
+                          <div className="glass" style={{ position: 'absolute', right: 0, top: '100%', zIndex: 10, minWidth: '180px', borderRadius: 'var(--radius-main)', overflow: 'hidden', padding: '4px 0', border: '1px solid rgba(151,125,255,0.2)' }}>
+                            {client.status === 'disconnected' ? (
+                              <>
+                                <button
+                                  style={{ display: 'block', width: '100%', padding: '10px 16px', background: 'none', border: 'none', textAlign: 'left', color: 'var(--color-text)', fontSize: 'var(--font-size-sm)', cursor: 'pointer', whiteSpace: 'nowrap' }}
+                                  onClick={e => { e.stopPropagation(); addClientBack(client) }}
+                                >
+                                  {t('add_client_back')}
+                                </button>
+                                <button
+                                  style={{ display: 'block', width: '100%', padding: '10px 16px', background: 'none', border: 'none', textAlign: 'left', color: 'var(--color-danger)', fontSize: 'var(--font-size-sm)', cursor: 'pointer', whiteSpace: 'nowrap' }}
+                                  onClick={e => { e.stopPropagation(); setConfirmDeleteClient(client); setClientMenu(null) }}
+                                >
+                                  {t('remove_client')}
+                                </button>
+                              </>
+                            ) : (
+                              <button
+                                style={{ display: 'block', width: '100%', padding: '10px 16px', background: 'none', border: 'none', textAlign: 'left', color: 'var(--color-danger)', fontSize: 'var(--font-size-sm)', cursor: 'pointer', whiteSpace: 'nowrap' }}
+                                onClick={e => { e.stopPropagation(); setConfirmDeleteClient(client); setClientMenu(null) }}
+                              >
+                                {t('delete_client')}
+                              </button>
+                            )}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
                 </div>
                 <div style={{ display: 'flex', gap: 'var(--spacing-sm)' }}>
                   <Link
@@ -237,6 +335,34 @@ export default function TrainerClientPage({ trainerId, clients: initialClients }
               </div>
             )
           })}
+        </div>
+      )}
+
+      {/* Delete client confirmation */}
+      {confirmDeleteClient && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.7)', padding: 'var(--spacing-lg)' }}>
+          <div className="glass" style={{ width: '100%', maxWidth: '400px', padding: 'var(--spacing-lg)', borderRadius: 'var(--radius-main)' }}>
+            <p style={{ fontWeight: '700', fontSize: 'var(--font-size-md)', marginBottom: 'var(--spacing-sm)' }}>{t('confirm_delete_client_title')}</p>
+            <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)', marginBottom: 'var(--spacing-lg)', lineHeight: '1.6' }}>
+              {t('confirm_delete_client_body')}
+            </p>
+            <div style={{ display: 'flex', gap: 'var(--spacing-sm)' }}>
+              <button
+                onClick={() => setConfirmDeleteClient(null)}
+                disabled={deleting}
+                style={{ flex: 1, padding: '10px', borderRadius: 'var(--radius-main)', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'var(--color-text)', fontWeight: '600', fontSize: 'var(--font-size-base)', cursor: 'pointer' }}
+              >
+                {t('cancel')}
+              </button>
+              <button
+                onClick={() => deleteClient(confirmDeleteClient)}
+                disabled={deleting}
+                style={{ flex: 1, padding: '10px', borderRadius: 'var(--radius-main)', background: 'color-mix(in srgb, var(--color-danger) 15%, transparent)', border: '1px solid color-mix(in srgb, var(--color-danger) 30%, transparent)', color: 'var(--color-danger)', fontWeight: '600', fontSize: 'var(--font-size-base)', cursor: 'pointer' }}
+              >
+                {deleting ? t('saving') : t('delete')}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </main>

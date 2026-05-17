@@ -61,7 +61,9 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith('/forum') ||
     pathname.startsWith('/spenden') ||
     pathname.startsWith('/impressum') ||   
-    pathname.startsWith('/datenschutz')
+    pathname.startsWith('/datenschutz') ||
+    pathname.startsWith('/personal-trainer') || 
+    pathname.startsWith('/app-tour')
 
   // Not logged in → only public pages allowed
   if (!user && !isPublicPage) {
@@ -91,5 +93,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|screenshots).*)'],
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|screenshots|pt-feature).*)'],
 }

@@ -50,5 +50,11 @@
   "client_not_found": "No account found with that email.",
   "already_linked": "Client already linked.",
   "linked": "Client linked!",
-  "no_plans_in_folder": "No plans yet."
+  "no_plans_in_folder": "No plans yet.",
+  "status_disconnected": "Disconnected",
+  "delete_client": "Delete Client",
+  "confirm_delete_client_title": "Delete client?",
+  "confirm_delete_client_body": "This removes the client and all their plans. Completed workouts stay in the logbook.",
+  "add_client_back": "Add Client Back",
+  "remove_client": "Remove Client"
 }

@@ -29,5 +29,8 @@
   "close": "Close",
   "note_placeholder": "Trainer note...",
   "add_note": "+ Add note",
-  "save_note": "Save"
+  "save_note": "Save",
+  "remove_trainer": "Remove Trainer",
+  "confirm_remove_trainer_title": "Remove trainer?",
+  "confirm_remove_trainer_body": "You will no longer see coach plans. Your completed workouts stay in your logbook."
 }

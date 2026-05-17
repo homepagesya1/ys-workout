@@ -23,17 +23,25 @@ export default async function CoachPage() {
     )
   }
 
-  const { data: shares } = await supabase
-    .from('plan_shares')
-    .select(`
-      id, plan_id, shared_at,
-      training_plans (
-        id, name, exercises,
-        client_folders ( id, name )
-      )
-    `)
-    .eq('client_id', user.id)
-    .order('shared_at', { ascending: false })
+  const [{ data: shares }, { data: trainerRel }] = await Promise.all([
+    supabase
+      .from('plan_shares')
+      .select(`
+        id, plan_id, shared_at,
+        training_plans (
+          id, name, exercises,
+          client_folders ( id, name )
+        )
+      `)
+      .eq('client_id', user.id)
+      .order('shared_at', { ascending: false }),
+    supabase
+      .from('trainer_clients')
+      .select('trainer_id')
+      .eq('client_id', user.id)
+      .eq('status', 'active')
+      .maybeSingle(),
+  ])
 
-  return <CoachClient shares={(shares ?? []) as any[]} userId={user.id} />
+  return <CoachClient shares={(shares ?? []) as any[]} userId={user.id} trainerId={trainerRel?.trainer_id ?? null} />
 }

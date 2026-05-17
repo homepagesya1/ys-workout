@@ -50,5 +50,11 @@
   "client_not_found": "Kein Konto mit dieser E-Mail gefunden.",
   "already_linked": "Klient bereits verknüpft.",
   "linked": "Klient verknüpft!",
-  "no_plans_in_folder": "Noch keine Pläne."
+  "no_plans_in_folder": "Noch keine Pläne.",
+  "status_disconnected": "Getrennt",
+  "delete_client": "Klienten löschen",
+  "confirm_delete_client_title": "Klient löschen?",
+  "confirm_delete_client_body": "Damit werden der Klient und alle seine Pläne entfernt. Abgeschlossene Workouts bleiben im Logbuch.",
+  "add_client_back": "Klient zurückfügen",
+  "remove_client": "Klient entfernen"
 }

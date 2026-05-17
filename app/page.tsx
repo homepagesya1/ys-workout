@@ -156,6 +156,30 @@ export default function HomePage() {
           </div>
         </div>
 
+        {/* Feature 5 */}
+        <div className="feature-row">
+          <div className="screenshot-wrap feature-img">
+            <img src="/screenshots/client.webp" alt="Personal Trainer Plans" className="screenshot-phone" />
+          </div>
+          <div className="feature-text" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
+            <FeatureTag>{tr.features.f5.tag}</FeatureTag>
+            <h2 style={{ fontSize: 'clamp(22px, 4vw, 30px)', fontWeight: '800', lineHeight: '1.2', letterSpacing: '-0.5px' }}>{tr.features.f5.title}</h2>
+            <p style={{ color: 'var(--color-text-secondary)', lineHeight: '1.7', fontSize: 'var(--font-size-sm)' }}>{tr.features.f5.body}</p>
+          </div>
+        </div>
+
+        {/* Feature 6 */}
+        <div className="feature-row" style={{ direction: 'rtl' }}>
+          <div className="screenshot-wrap feature-img" style={{ direction: 'ltr' }}>
+            <img src="/screenshots/trainer.webp" alt="Trainer Dashboard" className="screenshot-wide" />
+          </div>
+          <div className="feature-text" style={{ direction: 'ltr', display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
+            <FeatureTag>{tr.features.f6.tag}</FeatureTag>
+            <h2 style={{ fontSize: 'clamp(22px, 4vw, 30px)', fontWeight: '800', lineHeight: '1.2', letterSpacing: '-0.5px' }}>{tr.features.f6.title}</h2>
+            <p style={{ color: 'var(--color-text-secondary)', lineHeight: '1.7', fontSize: 'var(--font-size-sm)' }}>{tr.features.f6.body}</p>
+          </div>
+        </div>
+
         {/* Pricing */}
         <section style={{ position: 'relative', zIndex: 1, padding: '0 var(--spacing-lg) 80px', maxWidth: '900px', margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 'var(--spacing-xl)' }}>

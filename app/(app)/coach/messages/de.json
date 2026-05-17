@@ -29,5 +29,8 @@
   "close": "Schließen",
   "note_placeholder": "Trainer-Notiz...",
   "add_note": "+ Notiz hinzufügen",
-  "save_note": "Speichern"
+  "save_note": "Speichern",
+  "remove_trainer": "Trainer entfernen",
+  "confirm_remove_trainer_title": "Trainer entfernen?",
+  "confirm_remove_trainer_body": "Du siehst dann keine Coach-Pläne mehr. Abgeschlossene Workouts bleiben in deinem Logbuch."
 }

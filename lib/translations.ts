@@ -7,6 +7,8 @@ export type Lang = 'de' | 'en'
 export interface Translations {
   nav: {
     home: string
+    appTour: string
+    personalTrainer: string
     help: string
     forum: string
     contact: string
@@ -29,6 +31,8 @@ export interface Translations {
     f2: { tag: string; title: string; body: string }
     f3: { tag: string; title: string; body: string }
     f4: { tag: string; title: string; body: string }
+    f5: { tag: string; title: string; body: string }
+    f6: { tag: string; title: string; body: string }
   }
   pricing: {
     title1: string
@@ -160,6 +164,8 @@ export const t: Record<Lang, Translations> = {
   de: {
     nav: {
       home: 'Home',
+      appTour: 'App entdecken',
+      personalTrainer: 'Personal Trainer',
       help: 'Help',
       forum: 'Forum',
       contact: 'Kontakt',
@@ -182,6 +188,8 @@ export const t: Record<Lang, Translations> = {
       f2: { tag: 'Live Tracking', title: 'Jeder Satz zählt', body: "Während du trainierst, tippst du einfach ein wie viele Wiederholungen du gemacht hast und mit welchem Gewicht. Das war's. Kein Zettel, kein Vergessen — alles wird automatisch gespeichert." },
       f3: { tag: 'Statistiken', title: 'Sieh, wie du stärker wirst', body: 'Nach jedem Training siehst du, ob du mehr geschafft hast als letzte Woche. Neue Bestleistungen werden automatisch erkannt und markiert. Motivation pur — direkt aus deinen eigenen Zahlen.' },
       f4: { tag: 'Kein App Store nötig', title: 'Direkt auf den Homescreen', body: 'Du musst nichts herunterladen oder installieren. Öffne die App einmal im Browser, füge sie deinem Homescreen hinzu — und schon verhält sie sich wie eine normale App. Funktioniert auf iPhone und Android.' },
+      f5: { tag: 'Personal Trainer', title: 'Professionell trainieren lassen', body: 'Als Trainer erstellst du massgeschneiderte Pläne, organisierst sie in Ordnern und teilst sie per Knopfdruck direkt mit deinen Kunden. Deine Kunden trainieren exakt nach deinen Vorgaben — Satz für Satz, Übung für Übung.' },
+      f6: { tag: 'Trainer Dashboard', title: 'Deine Kunden. Immer im Blick.', body: 'Sieh in Echtzeit, welche Gewichte und Wiederholungen deine Kunden absolvieren. Kein Nachfragen, keine WhatsApp — du siehst den Fortschritt direkt im Dashboard und kannst gezielt eingreifen.' },
     },
     pricing: {
       title1: 'Jetzt gratis.',
@@ -350,6 +358,8 @@ export const t: Record<Lang, Translations> = {
   en: {
     nav: {
       home: 'Home',
+      appTour: 'Explore App',
+      personalTrainer: 'Personal Trainer',
       help: 'Help',
       forum: 'Forum',
       contact: 'Contact',
@@ -372,6 +382,8 @@ export const t: Record<Lang, Translations> = {
       f2: { tag: 'Live Tracking', title: 'Every set counts', body: "While you train, just tap in how many reps you did and with what weight. That's it. No paper, no forgetting — everything is saved automatically." },
       f3: { tag: 'Statistics', title: 'Watch yourself get stronger', body: 'After each workout you can see if you did more than last week. New personal records are automatically detected and highlighted. Pure motivation — straight from your own numbers.' },
       f4: { tag: 'No App Store needed', title: 'Add it to your home screen', body: "No download or installation needed. Open the app once in your browser, add it to your home screen — and it behaves just like a native app. Works on iPhone and Android." },
+      f5: { tag: 'Personal Trainer', title: 'Train with a personal coach', body: 'Trainers build tailored plans, organise them in folders, and share them with clients in one tap. Clients follow the exact programme — set by set, exercise by exercise — right inside the app.' },
+      f6: { tag: 'Trainer Dashboard', title: 'Your clients. Always in view.', body: 'See exactly which weights and reps your clients are hitting in real time. No follow-up messages needed — progress is visible straight in your dashboard so you can coach with precision.' },
     },
     pricing: {
       title1: 'Free now.',

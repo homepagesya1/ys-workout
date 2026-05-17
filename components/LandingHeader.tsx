@@ -53,6 +53,8 @@ export function LandingHeader() {
         <div className="header-nav-center" style={{ gap: 'var(--spacing-lg)', alignItems: 'center', position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
           {[
             { label: tr.nav.home, href: '/' },
+            { label: tr.nav.appTour, href: '/app-tour' },
+            { label: tr.nav.personalTrainer, href: '/personal-trainer' },
             { label: tr.nav.help, href: '/help' },
             { label: tr.nav.forum, href: 'https://www.reddit.com/r/ys_workout/', external: true },
             { label: tr.nav.contact, href: '/kontakt' },
@@ -92,6 +94,8 @@ export function LandingHeader() {
         <div className="burger-menu" style={{ position: 'sticky', top: '60px', zIndex: 99, backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', backgroundColor: 'rgba(9,9,15,0.95)', borderBottom: '1px solid rgba(139,92,246,0.12)', padding: 'var(--spacing-sm) 0' }}>
           {[
             { label: `🏠 ${tr.nav.home}`, href: '/', external: false },
+            { label: `🔍 ${tr.nav.appTour}`, href: '/app-tour', external: false },
+            { label: `🏋️ ${tr.nav.personalTrainer}`, href: '/personal-trainer', external: false },
             { label: `📖 ${tr.nav.help}`, href: '/help', external: false },
             { label: `💬 ${tr.nav.forum}`, href: 'https://www.reddit.com/r/ys_workout/', external: true },
             { label: `✉️ ${tr.nav.contact}`, href: '/kontakt', external: false },
